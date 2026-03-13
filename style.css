@@ -1,0 +1,11 @@
+/* Estilos para a impressão do PDF */
+#relatorio-print {
+    display: none;
+    background: white;
+    padding: 40px;
+    color: #1f2937;
+}
+
+#relatorio-print.show-for-pdf {
+    display: block;
+}
