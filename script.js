@@ -144,11 +144,23 @@ function realizarPreCadastro() {
     atualizarDropdownClientes();
     renderizarHistorico();
 
-    alert('Cliente pré-cadastrado com sucesso! Já pode selecioná-lo na aba Checklist.');
-    document.getElementById('inputPreIdAdvbox').value = '';
-    document.getElementById('inputPreNome').value = '';
+    // Feedback visual no botão sem mudar de aba
+    const btnSalvar = document.querySelector('button[onclick="realizarPreCadastro()"]');
+    const conteudoOriginal = btnSalvar.innerHTML;
 
-    carregarDoHistorico(novoCliente.id, true);
+    btnSalvar.innerHTML = `<i class="ph ph-check-circle text-xl"></i> Cadastrado com Sucesso!`;
+    btnSalvar.classList.replace('bg-indigo-600', 'bg-emerald-600');
+    btnSalvar.classList.replace('hover:bg-indigo-700', 'hover:bg-emerald-700');
+
+    setTimeout(() => {
+        btnSalvar.innerHTML = conteudoOriginal;
+        btnSalvar.classList.replace('bg-emerald-600', 'bg-indigo-600');
+        btnSalvar.classList.replace('hover:bg-emerald-700', 'hover:bg-indigo-700');
+
+        document.getElementById('inputPreIdAdvbox').value = '';
+        document.getElementById('inputPreNome').value = '';
+        document.getElementById('inputPreIdAdvbox').focus();
+    }, 1500);
 }
 
 function atualizarDropdownClientes() {
@@ -449,8 +461,8 @@ function salvarNoHistorico(silencioso = false) {
                 btnSalvar.classList.replace('bg-emerald-600', 'bg-indigo-600');
                 btnSalvar.classList.replace('hover:bg-emerald-700', 'hover:bg-indigo-700');
 
-                limparFormulario(false, false);
-                switchTab('precadastro');
+                // Limpa o formulário e mantém na aba checklist pronta para um novo cliente
+                limparFormulario(false, true);
             }, 1500);
         }
     }
@@ -467,7 +479,10 @@ function limparFormulario(pedirConfirmacao = true, mudarAba = true) {
 
         salvarRascunho();
         calcularHealthScore();
-        fecharRelatorio();
+
+        // Oculta o relatório de forma segura para não criar loop de funções
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('relatorio-print').classList.remove('show-for-pdf');
 
         if (mudarAba) {
             switchTab('checklist');
@@ -514,9 +529,14 @@ function renderizarHistorico() {
                                 <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${badgeClass}">${scoreText}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="carregarDoHistorico('${cliente.id}')" class="text-indigo-600 hover:text-indigo-900 flex items-center justify-end gap-1 ml-auto" title="Editar Checklist">
-                                    <i class="ph ph-pencil-simple text-lg"></i> Editar
-                                </button>
+                                <div class="flex items-center justify-end gap-3">
+                                    <button onclick="carregarDoHistorico('${cliente.id}')" class="text-indigo-600 hover:text-indigo-900 flex items-center gap-1" title="Editar Checklist">
+                                        <i class="ph ph-pencil-simple text-lg"></i> Editar
+                                    </button>
+                                    <button onclick="excluirDoHistorico('${cliente.id}')" class="text-red-500 hover:text-red-700 flex items-center gap-1" title="Excluir Cliente">
+                                        <i class="ph ph-trash text-lg"></i> Excluir
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -579,6 +599,21 @@ function calcularGargalos(historico) {
                         </div>
                     `;
         });
+    }
+}
+
+function excluirDoHistorico(id) {
+    if (confirm('Tem a certeza de que deseja excluir permanentemente o registo deste cliente do histórico?')) {
+        let historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
+        historico = historico.filter(c => c.id !== id);
+        localStorage.setItem('cs_historico', JSON.stringify(historico));
+
+        renderizarHistorico();
+        atualizarDropdownClientes();
+
+        if (clienteIdAtual === id) {
+            limparFormulario(false, false);
+        }
     }
 }
 
@@ -743,11 +778,8 @@ function gerarRelatorio() {
 }
 
 function fecharRelatorio() {
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('relatorio-print').classList.remove('show-for-pdf');
-
-    limparFormulario(false, false);
-    switchTab('precadastro');
+    // Apenas limpa a tela e garante que volta para a aba checklist limpa
+    limparFormulario(false, true);
 }
 
 function baixarPDF() {

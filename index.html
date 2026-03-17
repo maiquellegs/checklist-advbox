@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS Dashboard - Marcos de Sucesso</title>
     <!-- Tailwind CSS para um design moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="icon.png">
-    
+
     <!-- Configuração de Cores Personalizadas (Identidade Advbox) -->
     <script>
         tailwind.config = {
@@ -37,8 +36,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Phosphor Icons para ícones -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-<link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body class="bg-slate-50 min-h-screen flex flex-col text-slate-800 font-sans">
 
     <!-- Navbar Superior -->
@@ -46,31 +48,33 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3">
-                    <img src="icon.png" alt="Advbox" class="h-10 object-cover" onerror="this.style.display='none'; document.getElementById('fallbackIcon').style.display='block';">
+                    <img src="Avatar Principal.png" alt="Advbox" class="h-10 object-cover"
+                        onerror="this.style.display='none'; document.getElementById('fallbackIcon').style.display='block';">
                     <i class="ph ph-chart-line-up text-2xl hidden" id="fallbackIcon"></i>
-                    <span class="font-bold text-lg md:text-xl border-l border-indigo-500 pl-3">Painel CSI</span>
+                    <span class="font-bold text-lg md:text-xl border-l border-indigo-500 pl-3">CS Success Tracker</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="limparFormulario(true, true)" class="text-sm bg-indigo-600 hover:bg-indigo-800 transition-colors px-3 py-1.5 rounded-lg flex items-center gap-1 font-medium border border-indigo-500 shadow-sm">
-                        <i class="ph ph-broom"></i> <span class="hidden sm:inline">Limpar Tela</span>
-                    </button>
+                    <!-- O botão Limpar Tela foi removido daqui -->
                 </div>
             </div>
         </div>
     </nav>
 
     <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="mainApp">
-        
+
         <!-- Sistema de Abas -->
         <div class="mb-6 border-b border-slate-200">
             <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-                <button onclick="switchTab('precadastro')" id="btnTabPrecadastro" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                <button onclick="switchTab('precadastro')" id="btnTabPrecadastro"
+                    class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     <i class="ph ph-user-plus text-lg"></i> Pré-cadastro
                 </button>
-                <button onclick="switchTab('checklist')" id="btnTabChecklist" class="border-indigo-700 text-indigo-700 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-colors">
+                <button onclick="switchTab('checklist')" id="btnTabChecklist"
+                    class="border-indigo-700 text-indigo-700 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-colors">
                     <i class="ph ph-list-checks text-lg"></i> Checklist
                 </button>
-                <button onclick="switchTab('historico')" id="btnTabHistorico" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                <button onclick="switchTab('historico')" id="btnTabHistorico"
+                    class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     <i class="ph ph-chart-bar text-lg"></i> Histórico e Análise
                 </button>
             </nav>
@@ -81,26 +85,36 @@
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 max-w-2xl mx-auto mt-10">
                 <div class="text-center mb-8">
                     <!-- Avatar Logotipo no Pré-cadastro -->
-                    <img src="Avatar Logotipo.png" alt="Advbox Logotipo" class="h-16 mx-auto mb-4 object-contain shadow-sm rounded-md" onerror="this.style.display='none'; document.getElementById('fallbackIconPre').style.display='flex';">
-                    <div id="fallbackIconPre" class="hidden items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 mb-4 mx-auto">
+                    <img src="Avatar Logotipo.png" alt="Advbox Logotipo"
+                        class="h-16 mx-auto mb-4 object-contain shadow-sm rounded-md"
+                        onerror="this.style.display='none'; document.getElementById('fallbackIconPre').style.display='flex';">
+                    <div id="fallbackIconPre"
+                        class="hidden items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 mb-4 mx-auto">
                         <i class="ph ph-buildings text-3xl"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-slate-800">Novo Cliente</h2>
-                    <p class="text-slate-500 mt-2">Cadastre a identificação básica do escritório antes de iniciar o checklist.</p>
+                    <p class="text-slate-500 mt-2">Cadastre a identificação básica do escritório antes de iniciar o
+                        checklist.</p>
                 </div>
 
                 <div class="space-y-5">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">ID Interno (Advbox) <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">ID Interno (Advbox) <span
+                                class="text-red-500">*</span></label>
                         <!-- Validação: apenas números -->
-                        <input type="text" id="inputPreIdAdvbox" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ex: 15984" class="block w-full rounded-md border-slate-300 border p-3 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-50">
+                        <input type="text" id="inputPreIdAdvbox"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ex: 15984"
+                            class="block w-full rounded-md border-slate-300 border p-3 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">Nome do Escritório / Cliente <span class="text-red-500">*</span></label>
-                        <input type="text" id="inputPreNome" placeholder="Ex: Advocacia Silva & Associados" class="block w-full rounded-md border-slate-300 border p-3 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-50">
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Nome do Escritório / Cliente <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="inputPreNome" placeholder="Ex: Advocacia Silva & Associados"
+                            class="block w-full rounded-md border-slate-300 border p-3 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-50">
                     </div>
-                    
-                    <button onclick="realizarPreCadastro()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm mt-8">
+
+                    <button onclick="realizarPreCadastro()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm mt-8">
                         <i class="ph ph-check-circle text-xl"></i> Cadastrar Cliente
                     </button>
                 </div>
@@ -111,19 +125,23 @@
         <div id="tabChecklistContent" class="animate-fade-in">
             <!-- Formulário de Dados do Cliente -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 transition-all relative">
-                
+
                 <!-- Barra de Carregamento -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 border-b border-slate-100 pb-6">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 border-b border-slate-100 pb-6">
                     <div class="flex-1 w-full md:w-2/3">
                         <label class="block text-sm font-bold text-indigo-900 mb-1 flex items-center gap-2">
                             <i class="ph ph-users"></i> Carregar Cliente Pré-cadastrado
                         </label>
-                        <select id="selectClienteTop" onchange="carregarDoSelect()" class="block w-full rounded-md border-indigo-300 border p-2.5 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-indigo-50 text-indigo-900 font-medium transition-colors cursor-pointer">
+                        <select id="selectClienteTop" onchange="carregarDoSelect()"
+                            class="block w-full rounded-md border-indigo-300 border p-2.5 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-indigo-50 text-indigo-900 font-medium transition-colors cursor-pointer">
                             <option value="">+ Selecione um cliente cadastrado...</option>
                         </select>
                     </div>
                     <div class="shrink-0 w-full md:w-auto">
-                        <button onclick="salvarNoHistorico()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-sm" title="Salvar o progresso do checklist">
+                        <button onclick="salvarNoHistorico()"
+                            class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
+                            title="Salvar o progresso do checklist">
                             <i class="ph ph-floppy-disk text-lg"></i> Salvar Checklist
                         </button>
                     </div>
@@ -133,9 +151,10 @@
                     <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <i class="ph ph-buildings text-indigo-700"></i> Dados do Cliente
                     </h3>
-                    
+
                     <!-- Painel de Health Score -->
-                    <div class="bg-slate-50 rounded-lg p-3 border flex items-center gap-3 min-w-[220px]" id="healthCard">
+                    <div class="bg-slate-50 rounded-lg p-3 border flex items-center gap-3 min-w-[220px]"
+                        id="healthCard">
                         <div class="p-2 rounded-full bg-white shadow-sm" id="healthIconBox">
                             <i class="ph ph-heartbeat text-xl" id="healthIcon"></i>
                         </div>
@@ -149,110 +168,144 @@
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700">ID Advbox</label>
-                        <input type="text" id="inputAdvboxId" placeholder="Ex: 12345" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-100" readonly>
+                        <input type="text" id="inputAdvboxId" placeholder="Ex: 12345" onchange="salvarRascunho()"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-slate-100"
+                            readonly>
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-slate-700">Nome do Escritório <span class="text-red-500">*</span></label>
-                        <input type="text" id="inputNome" placeholder="Digite o nome do cliente..." onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-white">
+                        <label class="block text-sm font-medium text-slate-700">Nome do Escritório <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="inputNome" placeholder="Digite o nome do cliente..."
+                            onchange="salvarRascunho()"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none bg-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700">Controller (Resp. Intimações)</label>
-                        <input type="text" id="inputResponsavel" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <input type="text" id="inputResponsavel" onchange="salvarRascunho()"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700">Último Acesso</label>
                         <!-- A validação do 'max' é injetada no window.onload -->
-                        <input type="date" id="inputUltimoAcesso" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <input type="date" id="inputUltimoAcesso" onchange="salvarRascunho()"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                     </div>
 
                     <!-- Linha com as métricas -->
                     <div>
                         <label class="block text-sm font-medium text-slate-700">Intimações Pendentes</label>
-                        <input type="text" id="inputIntimacoes" placeholder="Ex: 0" oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <input type="text" id="inputIntimacoes" placeholder="Ex: 0"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700">Tarefas Registradas</label>
-                        <input type="text" id="inputTarefas" placeholder="Ex: 1218" oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <input type="text" id="inputTarefas" placeholder="Ex: 1218"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                     </div>
-                    
+
                     <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-slate-700">Menu Modelos</label>
                         <div class="flex gap-2 mt-1">
-                            <select id="selectModelos" onchange="toggleModelos(); salvarRascunho();" class="block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                            <select id="selectModelos" onchange="toggleModelos(); salvarRascunho();"
+                                class="block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                                 <option value="Nao">Não</option>
                                 <option value="Sim">Sim</option>
                             </select>
-                            <input type="text" id="inputModelosQtd" placeholder="Qtd" oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();" class="hidden w-16 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                            <input type="text" id="inputModelosQtd" placeholder="Qtd"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();"
+                                class="hidden w-16 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                         </div>
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-700">Metas</label>
                         <div class="flex gap-2 mt-1">
-                            <select id="selectMetas" onchange="toggleMetas(); salvarRascunho();" class="block w-1/3 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                            <select id="selectMetas" onchange="toggleMetas(); salvarRascunho();"
+                                class="block w-1/3 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                                 <option value="Nao">Não</option>
                                 <option value="Sim">Sim</option>
                             </select>
-                            <input type="text" id="inputMetasAreas" placeholder="Quais áreas? Ex: Cível, Trabalhista" onchange="salvarRascunho()" class="hidden w-2/3 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                            <input type="text" id="inputMetasAreas" placeholder="Quais áreas? Ex: Cível, Trabalhista"
+                                onchange="salvarRascunho()"
+                                class="hidden w-2/3 rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                         </div>
                     </div>
 
                     <!-- Linha de integrações e falhas -->
                     <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-slate-700">Integração Intimações</label>
-                        <select id="selectIntegracao" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <select id="selectIntegracao" onchange="salvarRascunho()"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                             <option value="Nao">Não</option>
                             <option value="Sim">Sim</option>
                         </select>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-700">Diários/sistemas monitorando</label>
-                        <input type="text" id="inputDiarios" onchange="salvarRascunho()" placeholder="Ex: PE / RS / SC / Tribunais" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <input type="text" id="inputDiarios" onchange="salvarRascunho()"
+                            placeholder="Ex: PE / RS / SC / Tribunais"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                     </div>
-                    
+
                     <!-- Novo campo de Sistemas com Falhas -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-700">Sistemas com falhas</label>
-                        <select id="selectFalhas" onchange="toggleFalhas(); salvarRascunho();" class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
+                        <select id="selectFalhas" onchange="toggleFalhas(); salvarRascunho();"
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none">
                             <option value="Nao">Não</option>
                             <option value="Sim">Sim</option>
                         </select>
                     </div>
 
-                    <div id="divFalhasDetails" class="hidden md:col-span-5 grid grid-cols-1 md:grid-cols-4 gap-4 bg-red-50 border border-red-100 p-3 rounded-md mt-2">
+                    <div id="divFalhasDetails"
+                        class="hidden md:col-span-5 grid grid-cols-1 md:grid-cols-4 gap-4 bg-red-50 border border-red-100 p-3 rounded-md mt-2">
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-red-800">Quantos?</label>
-                            <input type="text" id="inputFalhasQtd" placeholder="Ex: 2" oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();" class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
+                            <input type="text" id="inputFalhasQtd" placeholder="Ex: 2"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, ''); salvarRascunho();"
+                                class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-red-800">Quais?</label>
-                            <input type="text" id="inputFalhasQuais" placeholder="Ex: Projudi, PJe" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
+                            <input type="text" id="inputFalhasQuais" placeholder="Ex: Projudi, PJe"
+                                onchange="salvarRascunho()"
+                                class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-red-800">Qual falha?</label>
-                            <input type="text" id="inputFalhasQual" placeholder="Ex: Erro de certificado" onchange="salvarRascunho()" class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
+                            <input type="text" id="inputFalhasQual" placeholder="Ex: Erro de certificado"
+                                onchange="salvarRascunho()"
+                                class="mt-1 block w-full rounded-md border-red-200 border p-2 text-sm focus:ring-red-500 focus:border-red-500 outline-none">
                         </div>
                     </div>
 
                     <!-- Campos: Observações -->
                     <div class="md:col-span-5">
                         <label class="block text-sm font-medium text-slate-700">Observações Gerais</label>
-                        <textarea id="inputObservacoes" onchange="salvarRascunho()" rows="2" placeholder="Qualquer detalhe ou contexto extra sobre o cliente..." class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none"></textarea>
+                        <textarea id="inputObservacoes" onchange="salvarRascunho()" rows="2"
+                            placeholder="Qualquer detalhe ou contexto extra sobre o cliente..."
+                            class="mt-1 block w-full rounded-md border-slate-300 border p-2 text-sm focus:ring-indigo-600 focus:border-indigo-600 outline-none"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Área Principal: Checklist e Ações -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 <!-- Coluna Checklist (Ocupa 2/3) -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold text-slate-800"><i class="ph ph-check-square-offset text-indigo-700 mr-2"></i>Checklist de Implementação</h2>
-                            <span class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium flex items-center gap-1"><i class="ph ph-calculator"></i> Cálculo Automático</span>
+                            <h2 class="text-xl font-bold text-slate-800"><i
+                                    class="ph ph-check-square-offset text-indigo-700 mr-2"></i>Checklist de
+                                Implementação</h2>
+                            <span
+                                class="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium flex items-center gap-1"><i
+                                    class="ph ph-calculator"></i> Cálculo Automático</span>
                         </div>
-                        
+
                         <div id="checklistContainer" class="space-y-6">
                             <!-- Categorias e tarefas serão injetadas via JS -->
                         </div>
@@ -260,46 +313,54 @@
                 </div>
 
                 <!-- Coluna Ações e Relatório (Ocupa 1/3) -->
-                <div class="space-y-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6">
+                <div class="space-y-6 sticky top-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                         <h3 class="text-lg font-bold mb-4 border-b pb-2 text-indigo-900">Ações Finais</h3>
-                        <p class="text-sm text-slate-500 mb-6">Gere o PDF de alinhamento com o cliente baseado nos dados guardados.</p>
+                        <p class="text-sm text-slate-500 mb-6">Gere o PDF de alinhamento com o cliente baseado nos dados
+                            guardados.</p>
 
-                        <button onclick="gerarRelatorio()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm text-lg">
+                        <button onclick="gerarRelatorio()"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm text-lg">
                             <i class="ph ph-file-pdf text-2xl"></i> Gerar Relatório PDF
                         </button>
                     </div>
 
-                    <!-- Critérios de Avaliação (Movido para a lateral) -->
+                    <!-- Critérios de Avaliação (Movido para a lateral e agora fixo) -->
                     <div class="bg-indigo-50 rounded-xl shadow-sm border border-indigo-100 p-5">
-                        <h4 class="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-2 border-b border-indigo-200 pb-2">
+                        <h4
+                            class="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-2 border-b border-indigo-200 pb-2">
                             <i class="ph ph-info"></i> Critérios de Avaliação
                         </h4>
                         <ul class="text-xs text-indigo-800 space-y-2 list-none">
-                            <li><span class="inliSne-block w-5 text-center font-bold text-red-600">0:</span> Não começou (Nada relacionado ao marco)</li>
-                            <li><span class="inline-block w-5 text-center font-bold text-orange-600">1:</span> A começar (Estruturando inicialmente)</li>
-                            <li><span class="inline-block w-5 text-center font-bold text-amber-600">2:</span> A organizar (Uso baixo)</li>
-                            <li><span class="inline-block w-5 text-center font-bold text-emerald-600">3:</span> Bom (Precisa de pequenos ajustes)</li>
-                            <li><span class="inline-block w-5 text-center font-bold text-teal-600">4:</span> Ótimo (Excelente, sem ajustes)</li>
+                            <li><span class="inline-block w-5 text-center font-bold text-red-600">0:</span> Não começou
+                                (Nada relacionado ao marco)</li>
+                            <li><span class="inline-block w-5 text-center font-bold text-orange-600">1:</span> A começar
+                                (Estruturando inicialmente)</li>
+                            <li><span class="inline-block w-5 text-center font-bold text-amber-600">2:</span> A
+                                organizar (Uso baixo)</li>
+                            <li><span class="inline-block w-5 text-center font-bold text-emerald-600">3:</span> Bom
+                                (Precisa de pequenos ajustes)</li>
+                            <li><span class="inline-block w-5 text-center font-bold text-teal-600">4:</span> Ótimo
+                                (Excelente, sem ajustes)</li>
                         </ul>
                     </div>
                 </div>
             </div>
-            
         </div>
 
         <!-- CONTEÚDO DA ABA: HISTÓRICO E ANÁLISE -->
         <div id="tabHistoricoContent" class="hidden animate-fade-in space-y-6">
-            
+
             <!-- Bloco 1: Análise de Gargalos -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                 <div class="mb-4 border-b pb-4">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <i class="ph ph-warning-circle text-amber-500 text-2xl"></i> Pontos mais críticos em comum
                     </h2>
-                    <p class="text-sm text-slate-500 mt-1">Tarefas que mais receberam notas fracas (0, 1 ou 2) entre todos os escritórios avaliados.</p>
+                    <p class="text-sm text-slate-500 mt-1">Tarefas que mais receberam notas fracas (0, 1 ou 2) entre
+                        todos os escritórios avaliados.</p>
                 </div>
-                
+
                 <div id="containerGargalos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Gargalos injetados via JS -->
                 </div>
@@ -311,19 +372,32 @@
                     <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <i class="ph ph-users text-indigo-700 text-2xl"></i> Escritórios Avaliados
                     </h2>
-                    <span class="text-sm bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full" id="contadorClientes">0 clientes</span>
+                    <span class="text-sm bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full"
+                        id="contadorClientes">0 clientes</span>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-50 rounded-t-lg">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID Advbox</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Controller</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Data do Registo</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Health Score</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Ações</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Cliente</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    ID Advbox</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Controller</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Data do Registo</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Health Score</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    Ações</th>
                             </tr>
                         </thead>
                         <tbody id="historicoTabela" class="bg-white divide-y divide-slate-200">
@@ -339,12 +413,15 @@
     <!-- Navbar Inferior (Rodapé) -->
     <nav class="bg-indigo-800 text-white shadow-inner mt-auto print:hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between h-auto sm:h-16 items-center py-4 sm:py-0 gap-3 sm:gap-0">
+            <div
+                class="flex flex-col sm:flex-row justify-between h-auto sm:h-16 items-center py-4 sm:py-0 gap-3 sm:gap-0">
                 <div class="flex items-center gap-3">
-                    <img src="icon2.png" alt="Advbox" class="h-8 object-cover opacity-90 hover:opacity-100 transition-opacity" onerror="this.style.display='none';">
+                    <img src="icon2.png" alt="Advbox"
+                        class="h-8 object-cover opacity-90 hover:opacity-100 transition-opacity"
+                        onerror="this.style.display='none';">
                 </div>
                 <div class="text-sm font-medium text-indigo-300 flex items-center gap-2">
-                    <span>Customer Success Implementation</span>
+                    <span>CS Success Tracker</span>
                     <span class="text-indigo-500">&bull;</span>
                     <span>&copy; 2026 Advbox</span>
                 </div>
@@ -354,34 +431,41 @@
 
     <!-- Modal/Template do Relatório para PDF (Oculto na tela principal) -->
     <div id="relatorio-print" class="max-w-4xl mx-auto mt-10 shadow-2xl rounded-lg">
-        
+
         <!-- Cabeçalho do Relatório -->
         <div class="border-b-4 border-indigo-700 pb-6 mb-6 flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800">Relatório de Sucesso do Cliente</h1>
-                <p class="text-slate-500 mt-2 text-lg">Cliente: <strong id="relClienteNome" class="text-indigo-700"></strong> <span id="relAdvboxId" class="text-sm bg-indigo-100 px-2 py-0.5 rounded text-indigo-800 ml-2 hidden"></span></p>
+                <p class="text-slate-500 mt-2 text-lg">Cliente: <strong id="relClienteNome"
+                        class="text-indigo-700"></strong> <span id="relAdvboxId"
+                        class="text-sm bg-indigo-100 px-2 py-0.5 rounded text-indigo-800 ml-2 hidden"></span></p>
                 <p class="text-slate-500 text-sm mt-1">Data: <span id="relData"></span></p>
             </div>
             <!-- Avatar Logotipo -->
-            <img src="Avatar Logotipo.png" alt="Advbox Logo" class="h-14 object-contain rounded border border-slate-100 shadow-sm" onerror="this.style.display='none';">
+            <img src="icon.png" alt="Advbox Logo"
+                class="h-14 object-contain rounded border border-slate-100 shadow-sm"
+                onerror="this.style.display='none';">
         </div>
 
         <div class="bg-slate-50 p-6 rounded-lg mb-8 border border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 mb-4">Resumo Executivo</h2>
             <p class="text-slate-600" id="relTextoIntro">
-                Analisamos a operação do escritório e identificamos grandes oportunidades de otimização. 
+                Analisamos a operação do escritório e identificamos grandes oportunidades de otimização.
                 O último acesso registado foi em <strong id="relUltimoAcesso" class="text-indigo-700"></strong>.
-                Atualmente, o fluxo (sob responsabilidade do controller <strong id="relResponsavel"></strong>) apresenta:
+                Atualmente, o fluxo (sob responsabilidade do controller <strong id="relResponsavel"></strong>)
+                apresenta:
             </p>
-            
+
             <ul class="list-disc pl-5 mt-4 text-slate-600 space-y-2">
-                <li><strong>Intimações pendentes:</strong> <span id="relIntimacoes" class="text-red-600 font-bold"></span></li>
+                <li><strong>Intimações pendentes:</strong> <span id="relIntimacoes"
+                        class="text-red-600 font-bold"></span></li>
                 <li><strong>Tarefas já registadas:</strong> <span id="relTarefas"></span></li>
                 <li><strong>Menu modelos:</strong> <span id="relModelos"></span></li>
                 <li><strong>Metas configuradas:</strong> <span id="relMetas"></span></li>
                 <li><strong>Integração das intimações:</strong> <span id="relIntegracao"></span></li>
                 <li><strong>Diários/sistemas monitorando:</strong> <span id="relDiarios"></span></li>
-                <li id="liFalhas" class="hidden"><strong>Falhas nos Sistemas:</strong> <span id="relFalhas" class="text-red-600 font-medium"></span></li>
+                <li id="liFalhas" class="hidden"><strong>Falhas nos Sistemas:</strong> <span id="relFalhas"
+                        class="text-red-600 font-medium"></span></li>
             </ul>
 
             <p class="text-sm mt-4 pt-4 border-t border-slate-200 text-slate-600">
@@ -393,18 +477,23 @@
             <h2 class="text-2xl font-bold text-emerald-700 flex items-center gap-2 mb-4">
                 <i class="ph ph-check-circle"></i> Pontos Fortes (Concluídos)
             </h2>
-            <p id="textoPontosFortes" class="text-sm text-slate-700 leading-relaxed bg-white p-4 rounded-lg shadow-sm border border-slate-100"></p>
+            <p id="textoPontosFortes"
+                class="text-sm text-slate-700 leading-relaxed bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+            </p>
         </div>
 
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-red-600 flex items-center gap-2 mb-4">
                 <i class="ph ph-target"></i> Pontos de Melhoria (Próximos Passos)
             </h2>
-            <p id="textoPontosMelhoria" class="text-sm text-slate-700 leading-relaxed bg-white p-4 rounded-lg shadow-sm border border-slate-100"></p>
+            <p id="textoPontosMelhoria"
+                class="text-sm text-slate-700 leading-relaxed bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+            </p>
         </div>
 
         <div class="mt-12 pt-6 border-t border-slate-200 text-center flex flex-col items-center">
-            <button id="btnBaixarPDF" onclick="baixarPDF()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-indigo-700 flex items-center gap-2 print:hidden">
+            <button id="btnBaixarPDF" onclick="baixarPDF()"
+                class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-indigo-700 flex items-center gap-2 print:hidden">
                 <i class="ph ph-download-simple text-xl"></i> Baixar como PDF
             </button>
             <button onclick="fecharRelatorio()" class="mt-4 text-slate-500 hover:text-slate-700 underline print:hidden">
@@ -412,8 +501,7 @@
             </button>
         </div>
     </div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 
