@@ -24,6 +24,7 @@ const tarefasBase = [
 
 let currentSlideIndex = 0;
 let clienteIdAtual = null;
+let clienteSelecionado = false;
 let clientesHistoricoCompletos = [];
 
 // 2. INICIALIZAÇÃO E ABAS
@@ -46,13 +47,19 @@ window.onload = () => {
     calcularHealthScore();
     renderizarHistorico();
     switchTab('checklist');
+    setChecklistFieldsEnabled(false);
 
     document.addEventListener('click', (event) => {
         const input = document.getElementById('inputFilterCliente');
         const dropdown = document.getElementById('dropdownClientes');
+        const toggleBtn = document.getElementById('btnToggleDropdownClientes');
         if (!input || !dropdown) return;
 
-        if (event.target !== input && !dropdown.contains(event.target)) {
+        if (
+            event.target !== input &&
+            event.target !== toggleBtn &&
+            !dropdown.contains(event.target)
+        ) {
             dropdown.classList.add('hidden');
         }
     });
@@ -127,37 +134,71 @@ function switchTab(tabId) {
     }
 }
 
+function setChecklistFieldsEnabled(enabled) {
+    const checklist = document.getElementById('tabChecklistContent');
+    if (!checklist) return;
+
+    const keepIds = ['inputFilterCliente', 'dropdownClientes'];
+
+    checklist.querySelectorAll('input, select, textarea, button').forEach(el => {
+        if (keepIds.includes(el.id)) return;
+        if (el.dataset.keepenabled === 'true') return;
+        el.disabled = !enabled;
+    });
+}
+
+
 function filtrarSelectClientes() {
     const query = document.getElementById('inputFilterCliente').value.trim().toLowerCase();
     const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
     const filtrados = historico.filter(c => c.nome.toLowerCase().includes(query) || (c.advboxId && c.advboxId.toLowerCase().includes(query)));
 
-    const dataList = document.getElementById('datalistCliente');
-    if (!dataList) return;
-
-    dataList.innerHTML = '';
-    filtrados.forEach(c => {
-        const option = document.createElement('option');
-        option.value = c.nome;
-        option.setAttribute('data-id', c.id);
-        dataList.appendChild(option);
-    });
+    renderizarDropdownClientes(filtrados, true);
 }
 
 function limparFiltroSelect() {
     const input = document.getElementById('inputFilterCliente');
     if (input) input.value = '';
+
+    clienteIdAtual = null;
+    clienteSelecionado = false;
+
     filtrarSelectClientes();
+    setChecklistFieldsEnabled(false);
+    limparFormulario(false, false);
+
+    const dropdown = document.getElementById('dropdownClientes');
+    if (dropdown) dropdown.classList.add('hidden');
 }
 
 function carregarDoSelect() {
     selecionarClientePorTexto();
 }
 
-    const id = select.value;
-    if (id) {
-        carregarDoHistorico(id); // já faz switchTab('checklist') internamente
+function toggleDropdownClientes() {
+    const dropdown = document.getElementById('dropdownClientes');
+    if (!dropdown) return;
+
+    if (dropdown.classList.contains('hidden')) {
+        filtrarSelectClientes();
+    } else {
+        dropdown.classList.add('hidden');
     }
+}
+
+function mostrarDropdownClientes() {
+    atualizarDropdownClientes();
+
+    // Apenas mostra a dropdown quando há foco e clientes para exibir
+    const input = document.getElementById('inputFilterCliente');
+    if (!input) return;
+
+    const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
+    const query = input.value.trim().toLowerCase();
+    const filtrados = historico.filter(c => c.nome.toLowerCase().includes(query) || (c.advboxId && c.advboxId.toLowerCase().includes(query)));
+
+    renderizarDropdownClientes(filtrados, true);
+}
 
 // Lógica de Pré-cadastro
 function realizarPreCadastro() {
@@ -221,25 +262,13 @@ function atualizarDropdownClientes() {
     historico.sort((a, b) => a.nome.localeCompare(b.nome));
     clientesHistoricoCompletos = historico;
 
-    renderizarDropdownClientes(historico);
+    renderizarDropdownClientes(historico, false);
 
     if (clienteIdAtual) {
         const cliente = historico.find(c => c.id === clienteIdAtual);
         if (cliente) input.value = cliente.nome;
     } else {
         input.value = '';
-    }
-
-    const dataList = document.getElementById('datalistCliente');
-    if (dataList) {
-        dataList.innerHTML = '';
-        historico.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c.nome;
-            option.setAttribute('data-id', c.id);
-            option.innerText = c.advboxId ? `${c.nome} (ID: ${c.advboxId})` : c.nome;
-            dataList.appendChild(option);
-        });
     }
 
     if (clienteIdAtual) {
@@ -251,22 +280,24 @@ function atualizarDropdownClientes() {
     }
 }
 
-function renderizarDropdownClientes(clientes) {
+function renderizarDropdownClientes(clientes, mostrar = true) {
     const dropdown = document.getElementById('dropdownClientes');
     if (!dropdown) return;
 
     if (clientes.length === 0) {
         dropdown.innerHTML = '<p class="p-2 text-sm text-slate-500">Nenhum cliente encontrado</p>';
-        dropdown.classList.remove('hidden');
+        if (mostrar) dropdown.classList.remove('hidden');
+        else dropdown.classList.add('hidden');
         return;
     }
 
     let html = '<ul class="divide-y divide-slate-100">';
     clientes.forEach(c => {
         const badgeId = c.advboxId ? ` (ID: ${c.advboxId})` : '';
+        const selectedClass = c.id === clienteIdAtual ? 'bg-indigo-100 text-indigo-800 font-semibold' : 'text-slate-800';
         html += `
             <li>
-                <button type="button" class="w-full text-left px-3 py-2 hover:bg-indigo-50 focus:bg-indigo-100 text-sm text-slate-800" onclick="selecionarCliente('${c.id}')">
+                <button type="button" class="w-full text-left px-3 py-2 hover:bg-indigo-50 focus:bg-indigo-100 text-sm ${selectedClass}" onclick="selecionarCliente('${c.id}')">
                     ${c.nome}${badgeId}
                 </button>
             </li>`;
@@ -274,25 +305,14 @@ function renderizarDropdownClientes(clientes) {
     html += '</ul>';
 
     dropdown.innerHTML = html;
-    dropdown.classList.remove('hidden');
-}
-
-function filtrarClientes() {
-    const query = document.getElementById('inputFilterCliente').value.trim().toLowerCase();
-    const filtrados = clientesHistoricoCompletos.filter(c => c.nome.toLowerCase().includes(query) || (c.advboxId && c.advboxId.includes(query)));
-    renderizarDropdownClientes(filtrados);
-    const dropdown = document.getElementById('dropdownClientes');
-    if (dropdown) {
-        dropdown.classList.remove('hidden');
-    }
+    if (mostrar) dropdown.classList.remove('hidden');
+    else dropdown.classList.add('hidden');
 }
 
 function limparFiltroClientes() {
     const input = document.getElementById('inputFilterCliente');
     if (input) input.value = '';
-
-    clienteIdAtual = null;
-    atualizarDropdownClientes();
+    filtrarSelectClientes();
 }
 
 function selecionarCliente(id) {
@@ -300,9 +320,16 @@ function selecionarCliente(id) {
     if (!cliente) return;
 
     clienteIdAtual = id;
+    clienteSelecionado = true;
+
     const input = document.getElementById('inputFilterCliente');
     if (input) input.value = cliente.nome;
+
+    const dropdown = document.getElementById('dropdownClientes');
+    if (dropdown) dropdown.classList.add('hidden');
+
     carregarDoHistorico(id, false);
+    setChecklistFieldsEnabled(true);
 }
 
 function selecionarClientePorTexto() {
@@ -455,10 +482,14 @@ function atualizarBotoesCarousel() {
 // 4. PREENCHIMENTO E SALVAMENTO (RASCUNHO E HISTÓRICO)
 function preencherFormulario(dados) {
     clienteIdAtual = dados.id || null;
+    clienteSelecionado = !!dados.id;
+
     const inputBusca = document.getElementById('inputFilterCliente');
     if (inputBusca) {
         inputBusca.value = dados.nome || '';
     }
+
+    setChecklistFieldsEnabled(clienteSelecionado);
 
     document.getElementById('inputAdvboxId').value = dados.advboxId || '';
     document.getElementById('inputNome').value = dados.nome || '';
@@ -551,6 +582,11 @@ function salvarRascunho() {
 }
 
 function salvarNoHistorico(silencioso = false) {
+    if (!clienteSelecionado) {
+        alert('Selecione um cliente cadastrado antes de salvar o checklist.');
+        return;
+    }
+
     const rascunho = obterDadosAtuaisRascunho();
 
     if (!rascunho.nome.trim()) {
@@ -625,10 +661,12 @@ function salvarNoHistorico(silencioso = false) {
 function limparFormulario(pedirConfirmacao = true, mudarAba = true) {
     if (!pedirConfirmacao || confirm('Tem certeza que deseja limpar a tela?')) {
         clienteIdAtual = null;
+        clienteSelecionado = false;
         const inputBusca = document.getElementById('inputFilterCliente');
         if (inputBusca) inputBusca.value = '';
 
         preencherFormulario({});
+        setChecklistFieldsEnabled(false);
 
         const selectsPadrao = ['selectModelos', 'selectMetas', 'selectIntegracao', 'selectFalhas'];
         selectsPadrao.forEach(id => {
