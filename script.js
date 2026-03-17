@@ -52,14 +52,9 @@ window.onload = () => {
     document.addEventListener('click', (event) => {
         const input = document.getElementById('inputFilterCliente');
         const dropdown = document.getElementById('dropdownClientes');
-        const toggleBtn = document.getElementById('btnToggleDropdownClientes');
         if (!input || !dropdown) return;
 
-        if (
-            event.target !== input &&
-            event.target !== toggleBtn &&
-            !dropdown.contains(event.target)
-        ) {
+        if (event.target !== input && !dropdown.contains(event.target)) {
             dropdown.classList.add('hidden');
         }
     });
@@ -159,16 +154,7 @@ function filtrarSelectClientes() {
 function limparFiltroSelect() {
     const input = document.getElementById('inputFilterCliente');
     if (input) input.value = '';
-
-    clienteIdAtual = null;
-    clienteSelecionado = false;
-
     filtrarSelectClientes();
-    setChecklistFieldsEnabled(false);
-    limparFormulario(false, false);
-
-    const dropdown = document.getElementById('dropdownClientes');
-    if (dropdown) dropdown.classList.add('hidden');
 }
 
 function carregarDoSelect() {
@@ -324,9 +310,6 @@ function selecionarCliente(id) {
 
     const input = document.getElementById('inputFilterCliente');
     if (input) input.value = cliente.nome;
-
-    const dropdown = document.getElementById('dropdownClientes');
-    if (dropdown) dropdown.classList.add('hidden');
 
     carregarDoHistorico(id, false);
     setChecklistFieldsEnabled(true);
