@@ -2,28 +2,29 @@
 const tarefasBase = [
     { id: 't1', cat: '1. Saneamento e Segurança', texto: 'Responsável Intimações definido' },
     { id: 't2', cat: '1. Saneamento e Segurança', texto: 'Atribuição de tarefas a partir das intimações RI-DT' },
-    { id: 't3', cat: '1. Saneamento e Segurança', texto: 'Sistema de controle de prazos fatais padronizados (CUIDAR DO PRAZO FATAL)' },
-    { id: 't4', cat: '1. Saneamento e Segurança', texto: 'Integração das intimações: Diários e Eletrónicas' },
+    { id: 't3', cat: '1. Saneamento e Segurança', texto: 'Sistema de controle de prazos fatais padronizados' },
+    { id: 't4', cat: '1. Saneamento e Segurança', texto: 'Integração das intimações: Diários e Sistemas Eletrônicos' },
 
-    { id: 't5', cat: '2. Organização e Dados', texto: 'Acompanhar a Origem dos Clientes (não informado)' },
+    { id: 't5', cat: '2. Organização e Dados', texto: 'Acompanhar a Origem dos Clientes' },
     { id: 't6', cat: '2. Organização e Dados', texto: 'Cadastro de clientes completo e atualizado' },
-    { id: 't7', cat: '2. Organização e Dados', texto: 'Organização dos processos por fase/etapa adequada (MOVIMENTAR/ARQUIVAR CRM)' },
+    { id: 't7', cat: '2. Organização e Dados', texto: 'Organização dos processos por fase/etapa adequada' },
     { id: 't8', cat: '2. Organização e Dados', texto: 'Controlar as 4 datas base dos processos' },
-    { id: 't9', cat: '2. Organização e Dados', texto: '100% processos e recursos no sistema (Judiciais e Administrativos)' },
+    { id: 't9', cat: '2. Organização e Dados', texto: '100% dos processos e recursos cadastrados no sistema' },
     { id: 't10', cat: '2. Organização e Dados', texto: 'Grupos e tipos de ações definidos' },
 
-    { id: 't11', cat: '3. Engajamento da Equipa', texto: '100% da equipa aprendeu a usar o sistema e possui utilizador ativo' },
-    { id: 't12', cat: '3. Engajamento da Equipa', texto: 'Gestão por tarefa configurada (Lista de tarefas nas fases certas e não genéricas)' },
-    { id: 't13', cat: '3. Engajamento da Equipa', texto: 'Uso correto de tarefas (CUIDAR DO USO DE ANDAMENTOS, não usar só recado)' },
-    { id: 't14', cat: '3. Engajamento da Equipa', texto: 'Comunicação Multilateral pelo sistema' },
+    { id: 't11', cat: '3. Engajamento da Equipe', texto: '100% da equipe aprendeu a usar o sistema e possui usuário ativo' },
+    { id: 't12', cat: '3. Engajamento da Equipe', texto: 'Gestão por tarefa configurada' },
+    { id: 't13', cat: '3. Engajamento da Equipe', texto: 'Uso correto de tarefas' },
+    { id: 't14', cat: '3. Engajamento da Equipe', texto: 'Comunicação Multilateral pelo sistema' },
 
-    { id: 't15', cat: '4. Maturidade Financeira', texto: 'Usar o Assas' },
-    { id: 't16', cat: '4. Maturidade Financeira', texto: 'Financeiro parcial pelo sistema (com cadastramento adequado)' },
-    { id: 't17', cat: '4. Maturidade Financeira', texto: 'Registo de honorários vinculados ao processo (VINCULAR PROCESSOS FINANCEIRO)' }
+    { id: 't15', cat: '4. Maturidade Financeira', texto: 'Usar o Asaas' },
+    { id: 't16', cat: '4. Maturidade Financeira', texto: 'Financeiro parcial pelo sistema' },
+    { id: 't17', cat: '4. Maturidade Financeira', texto: 'Registo de honorários vinculados ao processo' }
 ];
 
 let currentSlideIndex = 0;
 let clienteIdAtual = null;
+let clientesHistoricoCompletos = [];
 
 // 2. INICIALIZAÇÃO E ABAS
 window.onload = () => {
@@ -44,6 +45,17 @@ window.onload = () => {
 
     calcularHealthScore();
     renderizarHistorico();
+    switchTab('checklist');
+
+    document.addEventListener('click', (event) => {
+        const input = document.getElementById('inputFilterCliente');
+        const dropdown = document.getElementById('dropdownClientes');
+        if (!input || !dropdown) return;
+
+        if (event.target !== input && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
 };
 
 // Lógica de Visibilidade de Campos Condicionais (Sim/Não)
@@ -105,9 +117,47 @@ function switchTab(tabId) {
     if (tabId === 'historico') {
         renderizarHistorico();
     } else if (tabId === 'precadastro') {
-        document.getElementById('inputPreIdAdvbox').focus();
+        const input = document.getElementById('inputPreIdAdvbox');
+        if (input) input.focus();
+    }
+
+    const dropdown = document.getElementById('dropdownClientes');
+    if (dropdown) {
+        dropdown.classList.add('hidden');
     }
 }
+
+function filtrarSelectClientes() {
+    const query = document.getElementById('inputFilterCliente').value.trim().toLowerCase();
+    const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
+    const filtrados = historico.filter(c => c.nome.toLowerCase().includes(query) || (c.advboxId && c.advboxId.toLowerCase().includes(query)));
+
+    const dataList = document.getElementById('datalistCliente');
+    if (!dataList) return;
+
+    dataList.innerHTML = '';
+    filtrados.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.nome;
+        option.setAttribute('data-id', c.id);
+        dataList.appendChild(option);
+    });
+}
+
+function limparFiltroSelect() {
+    const input = document.getElementById('inputFilterCliente');
+    if (input) input.value = '';
+    filtrarSelectClientes();
+}
+
+function carregarDoSelect() {
+    selecionarClientePorTexto();
+}
+
+    const id = select.value;
+    if (id) {
+        carregarDoHistorico(id); // já faz switchTab('checklist') internamente
+    }
 
 // Lógica de Pré-cadastro
 function realizarPreCadastro() {
@@ -132,9 +182,9 @@ function realizarPreCadastro() {
         nome: nome,
         dataSalvamento: new Date().toISOString(),
         score: 0,
-        responsavel: '', intimacoes: '', ultimoAcesso: '', integracao: 'Nao',
-        diarios: '', tarefas: '', modelos: 'Nao', modelosQtd: '', metas: 'Nao', metasAreas: '',
-        falhas: 'Nao', falhasQtd: '', falhasQuais: '', falhasQual: '', observacoes: '',
+        responsavel: '', intimacoes: '', ultimoAcesso: '', integracao: '',
+        diarios: '', tarefas: '', modelos: '', modelosQtd: '', metas: '', metasAreas: '',
+        falhas: '', falhasQtd: '', falhasQuais: '', falhasQual: '', observacoes: '',
         notasTarefas: {}, obsTarefas: {}
     };
 
@@ -164,31 +214,132 @@ function realizarPreCadastro() {
 }
 
 function atualizarDropdownClientes() {
-    const select = document.getElementById('selectClienteTop');
-    if (!select) return;
+    const input = document.getElementById('inputFilterCliente');
+    if (!input) return;
 
     const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
     historico.sort((a, b) => a.nome.localeCompare(b.nome));
+    clientesHistoricoCompletos = historico;
 
-    let options = '<option value="">+ Selecione um cliente pré-cadastrado...</option>';
-    historico.forEach(c => {
-        const badgeId = c.advboxId ? ` (ID: ${c.advboxId})` : '';
-        options += `<option value="${c.id}">${c.nome}${badgeId}</option>`;
-    });
-    select.innerHTML = options;
+    renderizarDropdownClientes(historico);
 
     if (clienteIdAtual) {
-        select.value = clienteIdAtual;
+        const cliente = historico.find(c => c.id === clienteIdAtual);
+        if (cliente) input.value = cliente.nome;
+    } else {
+        input.value = '';
+    }
+
+    const dataList = document.getElementById('datalistCliente');
+    if (dataList) {
+        dataList.innerHTML = '';
+        historico.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.nome;
+            option.setAttribute('data-id', c.id);
+            option.innerText = c.advboxId ? `${c.nome} (ID: ${c.advboxId})` : c.nome;
+            dataList.appendChild(option);
+        });
+    }
+
+    if (clienteIdAtual) {
+        const cliente = historico.find(c => c.id === clienteIdAtual);
+        if (cliente) {
+            const input = document.getElementById('inputFilterCliente');
+            if (input) input.value = cliente.nome;
+        }
     }
 }
 
-function carregarDoSelect() {
-    const id = document.getElementById('selectClienteTop').value;
-    if (id) {
-        carregarDoHistorico(id, false);
-    } else {
-        limparFormulario(false, false);
+function renderizarDropdownClientes(clientes) {
+    const dropdown = document.getElementById('dropdownClientes');
+    if (!dropdown) return;
+
+    if (clientes.length === 0) {
+        dropdown.innerHTML = '<p class="p-2 text-sm text-slate-500">Nenhum cliente encontrado</p>';
+        dropdown.classList.remove('hidden');
+        return;
     }
+
+    let html = '<ul class="divide-y divide-slate-100">';
+    clientes.forEach(c => {
+        const badgeId = c.advboxId ? ` (ID: ${c.advboxId})` : '';
+        html += `
+            <li>
+                <button type="button" class="w-full text-left px-3 py-2 hover:bg-indigo-50 focus:bg-indigo-100 text-sm text-slate-800" onclick="selecionarCliente('${c.id}')">
+                    ${c.nome}${badgeId}
+                </button>
+            </li>`;
+    });
+    html += '</ul>';
+
+    dropdown.innerHTML = html;
+    dropdown.classList.remove('hidden');
+}
+
+function filtrarClientes() {
+    const query = document.getElementById('inputFilterCliente').value.trim().toLowerCase();
+    const filtrados = clientesHistoricoCompletos.filter(c => c.nome.toLowerCase().includes(query) || (c.advboxId && c.advboxId.includes(query)));
+    renderizarDropdownClientes(filtrados);
+    const dropdown = document.getElementById('dropdownClientes');
+    if (dropdown) {
+        dropdown.classList.remove('hidden');
+    }
+}
+
+function limparFiltroClientes() {
+    const input = document.getElementById('inputFilterCliente');
+    if (input) input.value = '';
+
+    clienteIdAtual = null;
+    atualizarDropdownClientes();
+}
+
+function selecionarCliente(id) {
+    const cliente = clientesHistoricoCompletos.find(c => c.id === id);
+    if (!cliente) return;
+
+    clienteIdAtual = id;
+    const input = document.getElementById('inputFilterCliente');
+    if (input) input.value = cliente.nome;
+    carregarDoHistorico(id, false);
+}
+
+function selecionarClientePorTexto() {
+    const valor = document.getElementById('inputFilterCliente').value.trim();
+    if (!valor) return;
+
+    const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
+    const cliente = historico.find(c => c.nome.toLowerCase() === valor.toLowerCase() || c.advboxId === valor);
+    if (cliente) {
+        selecionarCliente(cliente.id);
+    }
+}
+
+function abrirBuscaCliente() {
+    const historico = JSON.parse(localStorage.getItem('cs_historico')) || [];
+    const listaElement = document.getElementById('listaClientes');
+
+    if (historico.length === 0) {
+        listaElement.classList.add('hidden');
+        listaElement.innerHTML = '';
+        alert('Nenhum cliente cadastrado disponível. Cadastre um cliente primeiro.');
+        return;
+    }
+
+    let html = '<ul class="space-y-1 text-sm">';
+    historico.forEach(cliente => {
+        const badgeId = cliente.advboxId ? ` (ID: ${cliente.advboxId})` : '';
+        html += `
+            <li class="flex justify-between items-center rounded px-2 py-1 hover:bg-indigo-50">
+                <span>${cliente.nome}${badgeId}</span>
+                <button onclick="carregarDoHistorico('${cliente.id}', false)" class="text-indigo-600 hover:text-indigo-900 text-xs font-semibold">Selecionar</button>
+            </li>`;
+    });
+    html += '</ul>';
+
+    listaElement.innerHTML = html;
+    listaElement.classList.remove('hidden');
 }
 
 // 3. LÓGICA DO CARROSSEL E RENDERIZAÇÃO
@@ -304,7 +455,10 @@ function atualizarBotoesCarousel() {
 // 4. PREENCHIMENTO E SALVAMENTO (RASCUNHO E HISTÓRICO)
 function preencherFormulario(dados) {
     clienteIdAtual = dados.id || null;
-    document.getElementById('selectClienteTop').value = clienteIdAtual || "";
+    const inputBusca = document.getElementById('inputFilterCliente');
+    if (inputBusca) {
+        inputBusca.value = dados.nome || '';
+    }
 
     document.getElementById('inputAdvboxId').value = dados.advboxId || '';
     document.getElementById('inputNome').value = dados.nome || '';
@@ -314,16 +468,16 @@ function preencherFormulario(dados) {
     document.getElementById('inputTarefas').value = dados.tarefas || '';
 
     // Campos Select e afins
-    document.getElementById('selectModelos').value = dados.modelos || 'Nao';
+    document.getElementById('selectModelos').value = dados.modelos || '';
     document.getElementById('inputModelosQtd').value = dados.modelosQtd || '';
 
-    document.getElementById('selectMetas').value = dados.metas || 'Nao';
+    document.getElementById('selectMetas').value = dados.metas || '';
     document.getElementById('inputMetasAreas').value = dados.metasAreas || '';
 
-    document.getElementById('selectIntegracao').value = dados.integracao || 'Nao';
+    document.getElementById('selectIntegracao').value = dados.integracao || '';
     document.getElementById('inputDiarios').value = dados.diarios || '';
 
-    document.getElementById('selectFalhas').value = dados.falhas || 'Nao';
+    document.getElementById('selectFalhas').value = dados.falhas || '';
     document.getElementById('inputFalhasQtd').value = dados.falhasQtd || '';
     document.getElementById('inputFalhasQuais').value = dados.falhasQuais || '';
     document.getElementById('inputFalhasQual').value = dados.falhasQual || '';
@@ -471,11 +625,21 @@ function salvarNoHistorico(silencioso = false) {
 function limparFormulario(pedirConfirmacao = true, mudarAba = true) {
     if (!pedirConfirmacao || confirm('Tem certeza que deseja limpar a tela?')) {
         clienteIdAtual = null;
-        document.getElementById('selectClienteTop').value = "";
+        const inputBusca = document.getElementById('inputFilterCliente');
+        if (inputBusca) inputBusca.value = '';
 
         preencherFormulario({});
 
+        const selectsPadrao = ['selectModelos', 'selectMetas', 'selectIntegracao', 'selectFalhas'];
+        selectsPadrao.forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) sel.selectedIndex = 0;
+        });
+
         if (currentSlideIndex > 0) pularParaSlide(0);
+
+        // Remove rascunho antigo para garantir novos relatórios com placeholder
+        localStorage.removeItem('cs_rascunho');
 
         salvarRascunho();
         calcularHealthScore();
@@ -624,182 +788,180 @@ function carregarDoHistorico(id, mudarAba = true) {
         preencherFormulario(cliente);
         salvarRascunho();
         calcularHealthScore();
-        if (mudarAba) switchTab('checklist');
-    }
-}
+        if (mudarAba) switchTab('checklist', true);
+        function calcularHealthScore() {
+            let scoreAbsoluto = 0;
+            const totalMaximo = tarefasBase.length * 4;
 
-// 6. LÓGICA DE PONTUAÇÃO (TELA PRINCIPAL)
-function calcularHealthScore() {
-    let scoreAbsoluto = 0;
-    const totalMaximo = tarefasBase.length * 4;
+            document.querySelectorAll('#checklistContainer input[type="radio"]:checked').forEach(radio => {
+                scoreAbsoluto += parseInt(radio.value);
+            });
 
-    document.querySelectorAll('#checklistContainer input[type="radio"]:checked').forEach(radio => {
-        scoreAbsoluto += parseInt(radio.value);
-    });
-
-    const scorePercentual = Math.round((scoreAbsoluto / totalMaximo) * 100);
-    atualizarUIHealthScore(scorePercentual, scoreAbsoluto);
-}
-
-function atualizarUIHealthScore(percentual, absoluto) {
-    const display = document.getElementById('scoreDisplay');
-    const card = document.getElementById('healthCard');
-    const iconBox = document.getElementById('healthIconBox');
-    const icon = document.getElementById('healthIcon');
-
-    card.className = "rounded-lg p-3 border flex items-center gap-3 min-w-[220px] transition-colors";
-    iconBox.className = "p-2 rounded-full shadow-sm";
-    icon.className = "ph text-xl";
-
-    let classificacao = "";
-
-    if (percentual < 40) {
-        card.classList.add("bg-red-50", "border-red-200");
-        iconBox.classList.add("bg-red-100", "text-red-600");
-        icon.classList.add("ph-warning-octagon");
-        display.className = "text-xl font-bold text-red-700";
-        classificacao = "BAD";
-    } else if (percentual < 60) {
-        card.classList.add("bg-amber-50", "border-amber-200");
-        iconBox.classList.add("bg-amber-100", "text-amber-600");
-        icon.classList.add("ph-warning");
-        display.className = "text-xl font-bold text-amber-700";
-        classificacao = "POOR";
-    } else if (percentual < 80) {
-        card.classList.add("bg-emerald-50", "border-emerald-200");
-        iconBox.classList.add("bg-emerald-100", "text-emerald-600");
-        icon.classList.add("ph-check-circle");
-        display.className = "text-xl font-bold text-emerald-700";
-        classificacao = "GOOD";
-    } else {
-        card.classList.add("bg-teal-50", "border-teal-200");
-        iconBox.classList.add("bg-teal-100", "text-teal-600");
-        icon.classList.add("ph-star");
-        display.className = "text-xl font-bold text-teal-700";
-        classificacao = "EXCELENT";
-    }
-
-    display.innerHTML = `${absoluto} pts <span class="text-sm font-normal">(${percentual}%)</span> - ${classificacao}`;
-}
-
-// 7. GERAÇÃO DO RELATÓRIO PDF
-function gerarRelatorio() {
-    const nomeCliente = document.getElementById('inputNome').value;
-    const advboxId = document.getElementById('inputAdvboxId').value;
-
-    if (!nomeCliente.trim()) {
-        alert('Por favor, preencha o Nome do Escritório antes de gerar o relatório.');
-        document.getElementById('inputNome').focus();
-        return;
-    }
-
-    salvarNoHistorico(true);
-
-    document.getElementById('relClienteNome').innerText = nomeCliente;
-    document.getElementById('relData').innerText = new Date().toLocaleDateString('pt-BR');
-
-    const relAdvboxIdEl = document.getElementById('relAdvboxId');
-    if (advboxId) {
-        relAdvboxIdEl.innerText = `(ID: ${advboxId})`;
-        relAdvboxIdEl.classList.remove('hidden');
-    } else {
-        relAdvboxIdEl.classList.add('hidden');
-    }
-
-    const rascunho = obterDadosAtuaisRascunho();
-
-    document.getElementById('relIntimacoes').innerText = rascunho.intimacoes || "0";
-    document.getElementById('relResponsavel').innerText = rascunho.responsavel || "Não definido";
-    document.getElementById('relTarefas').innerText = rascunho.tarefas || "0";
-
-    // Valores formatados condicionalmente
-    document.getElementById('relModelos').innerText = rascunho.modelos === 'Sim' ? `Sim (${rascunho.modelosQtd || '0'} modelos)` : 'Não';
-    document.getElementById('relMetas').innerText = rascunho.metas === 'Sim' ? `Sim (Áreas: ${rascunho.metasAreas || '-'})` : 'Não';
-    document.getElementById('relIntegracao').innerText = rascunho.integracao === 'Sim' ? 'Sim' : 'Não';
-    document.getElementById('relDiarios').innerText = rascunho.diarios || "Não informado";
-    document.getElementById('relObservacoes').innerText = rascunho.observacoes || "Nenhuma observação registada.";
-
-    // Falhas
-    const liFalhas = document.getElementById('liFalhas');
-    if (rascunho.falhas === 'Sim') {
-        document.getElementById('relFalhas').innerText = `Sim (${rascunho.falhasQtd || '0'} sistemas: ${rascunho.falhasQuais || '-'} - Falha: ${rascunho.falhasQual || '-'})`;
-        liFalhas.classList.remove('hidden');
-    } else {
-        liFalhas.classList.add('hidden');
-    }
-
-    const dataAcesso = rascunho.ultimoAcesso;
-    let dataFormatada = "Não registado";
-    if (dataAcesso) {
-        const [ano, mes, dia] = dataAcesso.split('-');
-        dataFormatada = `${dia}/${mes}/${ano}`;
-    }
-    document.getElementById('relUltimoAcesso').innerText = dataFormatada;
-
-    let fortes = [];
-    let melhorias = [];
-    let observacoesAcoes = [];
-
-    document.querySelectorAll('#checklistContainer input[type="radio"]:checked').forEach(radio => {
-        const tarefaId = radio.name.replace('nota_', '');
-        const tarefaNome = radio.getAttribute('data-label');
-        const nota = parseInt(radio.value);
-        const obsInput = document.getElementById(`obs_${tarefaId}`);
-        const obsTexto = obsInput && obsInput.value.trim() !== '' ? obsInput.value.trim() : null;
-
-        if (nota >= 3) {
-            fortes.push(tarefaNome.toLowerCase());
-        } else {
-            melhorias.push(tarefaNome.toLowerCase());
-            if (obsTexto) {
-                observacoesAcoes.push(`<strong>${tarefaNome}:</strong> ${obsTexto}`);
-            }
+            const scorePercentual = Math.round((scoreAbsoluto / totalMaximo) * 100);
+            atualizarUIHealthScore(scorePercentual, scoreAbsoluto);
         }
-    });
 
-    let txtFortes = fortes.length > 0
-        ? `O escritório apresentou um bom nível de maturidade e adoção nos seguintes processos: <strong>${fortes.join(', ')}</strong>.`
-        : `<span class="italic text-slate-500">Ainda não há marcos consolidados avaliados com desempenho ideal.</span>`;
+        function atualizarUIHealthScore(percentual, absoluto) {
+            const display = document.getElementById('scoreDisplay');
+            const card = document.getElementById('healthCard');
+            const iconBox = document.getElementById('healthIconBox');
+            const icon = document.getElementById('healthIcon');
 
-    let txtMelhorias = melhorias.length > 0
-        ? `Para garantir o sucesso contínuo e a evolução do escritório, mapeamos que as próximas etapas devem focar em aprimorar: <strong>${melhorias.join(', ')}</strong>.`
-        : `<span class="italic text-slate-500">Parabéns! Todos os marcos avaliados estão com excelentes indicadores de uso.</span>`;
+            card.className = "rounded-lg p-3 border flex items-center gap-3 min-w-[220px] transition-colors";
+            iconBox.className = "p-2 rounded-full shadow-sm";
+            icon.className = "ph text-xl";
 
-    if (observacoesAcoes.length > 0) {
-        txtMelhorias += `<br><br><span class="font-bold text-slate-800">Ações Específicas e Comentários:</span><br>` + observacoesAcoes.map(obs => `<span class="block mt-2 pl-3 border-l-2 border-red-200">${obs}</span>`).join('');
+            let classificacao = "";
+
+            if (percentual < 40) {
+                card.classList.add("bg-red-50", "border-red-200");
+                iconBox.classList.add("bg-red-100", "text-red-600");
+                icon.classList.add("ph-warning-octagon");
+                display.className = "text-xl font-bold text-red-700";
+                classificacao = "BAD";
+            } else if (percentual < 60) {
+                card.classList.add("bg-amber-50", "border-amber-200");
+                iconBox.classList.add("bg-amber-100", "text-amber-600");
+                icon.classList.add("ph-warning");
+                display.className = "text-xl font-bold text-amber-700";
+                classificacao = "POOR";
+            } else if (percentual < 80) {
+                card.classList.add("bg-emerald-50", "border-emerald-200");
+                iconBox.classList.add("bg-emerald-100", "text-emerald-600");
+                icon.classList.add("ph-check-circle");
+                display.className = "text-xl font-bold text-emerald-700";
+                classificacao = "GOOD";
+            } else {
+                card.classList.add("bg-teal-50", "border-teal-200");
+                iconBox.classList.add("bg-teal-100", "text-teal-600");
+                icon.classList.add("ph-star");
+                display.className = "text-xl font-bold text-teal-700";
+                classificacao = "EXCELENT";
+            }
+
+            display.innerHTML = `${absoluto} pts <span class="text-sm font-normal">(${percentual}%)</span> - ${classificacao}`;
+        }
+
+        // 7. GERAÇÃO DO RELATÓRIO PDF
+        function gerarRelatorio() {
+            const nomeCliente = document.getElementById('inputNome').value;
+            const advboxId = document.getElementById('inputAdvboxId').value;
+
+            if (!nomeCliente.trim()) {
+                alert('Por favor, preencha o Nome do Escritório antes de gerar o relatório.');
+                document.getElementById('inputNome').focus();
+                return;
+            }
+
+            salvarNoHistorico(true);
+
+            document.getElementById('relClienteNome').innerText = nomeCliente;
+            document.getElementById('relData').innerText = new Date().toLocaleDateString('pt-BR');
+
+            const relAdvboxIdEl = document.getElementById('relAdvboxId');
+            if (advboxId) {
+                relAdvboxIdEl.innerText = `(ID: ${advboxId})`;
+                relAdvboxIdEl.classList.remove('hidden');
+            } else {
+                relAdvboxIdEl.classList.add('hidden');
+            }
+
+            const rascunho = obterDadosAtuaisRascunho();
+
+            document.getElementById('relIntimacoes').innerText = rascunho.intimacoes || "0";
+            document.getElementById('relResponsavel').innerText = rascunho.responsavel || "Não definido";
+            document.getElementById('relTarefas').innerText = rascunho.tarefas || "0";
+
+            // Valores formatados condicionalmente
+            document.getElementById('relModelos').innerText = rascunho.modelos === 'Sim' ? `Sim (${rascunho.modelosQtd || '0'} modelos)` : 'Não';
+            document.getElementById('relMetas').innerText = rascunho.metas === 'Sim' ? `Sim (Áreas: ${rascunho.metasAreas || '-'})` : 'Não';
+            document.getElementById('relIntegracao').innerText = rascunho.integracao === 'Sim' ? 'Sim' : 'Não';
+            document.getElementById('relDiarios').innerText = rascunho.diarios || "Não informado";
+            document.getElementById('relObservacoes').innerText = rascunho.observacoes || "Nenhuma observação registrada.";
+
+            // Falhas
+            const liFalhas = document.getElementById('liFalhas');
+            if (rascunho.falhas === 'Sim') {
+                document.getElementById('relFalhas').innerText = `Sim (${rascunho.falhasQtd || '0'} sistemas: ${rascunho.falhasQuais || '-'} - Falha: ${rascunho.falhasQual || '-'})`;
+                liFalhas.classList.remove('hidden');
+            } else {
+                liFalhas.classList.add('hidden');
+            }
+
+            const dataAcesso = rascunho.ultimoAcesso;
+            let dataFormatada = "Não registrado";
+            if (dataAcesso) {
+                const [ano, mes, dia] = dataAcesso.split('-');
+                dataFormatada = `${dia}/${mes}/${ano}`;
+            }
+            document.getElementById('relUltimoAcesso').innerText = dataFormatada;
+
+            let fortes = [];
+            let melhorias = [];
+            let observacoesAcoes = [];
+
+            document.querySelectorAll('#checklistContainer input[type="radio"]:checked').forEach(radio => {
+                const tarefaId = radio.name.replace('nota_', '');
+                const tarefaNome = radio.getAttribute('data-label');
+                const nota = parseInt(radio.value);
+                const obsInput = document.getElementById(`obs_${tarefaId}`);
+                const obsTexto = obsInput && obsInput.value.trim() !== '' ? obsInput.value.trim() : null;
+
+                if (nota >= 3) {
+                    fortes.push(tarefaNome.toLowerCase());
+                } else {
+                    melhorias.push(tarefaNome.toLowerCase());
+                    if (obsTexto) {
+                        observacoesAcoes.push(`<strong>${tarefaNome}:</strong> ${obsTexto}`);
+                    }
+                }
+            });
+
+            let txtFortes = fortes.length > 0
+                ? `O escritório apresentou um bom nível de maturidade e adoção nos seguintes processos: <strong>${fortes.join(', ')}</strong>.`
+                : `<span class="italic text-slate-500">Ainda não há marcos consolidados avaliados com desempenho ideal.</span>`;
+
+            let txtMelhorias = melhorias.length > 0
+                ? `Para garantir o sucesso contínuo e a evolução do escritório, mapeamos que as próximas etapas devem focar em aprimorar: <strong>${melhorias.join(', ')}</strong>.`
+                : `<span class="italic text-slate-500">Parabéns! Todos os marcos avaliados estão com excelentes indicadores de uso.</span>`;
+
+            if (observacoesAcoes.length > 0) {
+                txtMelhorias += `<br><br><span class="font-bold text-slate-800">Ações Específicas e Comentários:</span><br>` + observacoesAcoes.map(obs => `<span class="block mt-2 pl-3 border-l-2 border-red-200">${obs}</span>`).join('');
+            }
+
+            document.getElementById('textoPontosFortes').innerHTML = txtFortes;
+            document.getElementById('textoPontosMelhoria').innerHTML = txtMelhorias;
+
+            document.getElementById('mainApp').style.display = 'none';
+            const relatorio = document.getElementById('relatorio-print');
+            relatorio.classList.add('show-for-pdf');
+        }
+
+        function fecharRelatorio() {
+            // Apenas limpa a tela e garante que volta para a aba checklist limpa
+            limparFormulario(false, true);
+        }
+
+        function baixarPDF() {
+            const elemento = document.getElementById('relatorio-print');
+            const clienteNome = document.getElementById('relClienteNome').innerText.replace(/\s+/g, '_');
+
+            document.getElementById('btnBaixarPDF').style.display = 'none';
+            const btnVoltar = document.querySelector('button[onclick="fecharRelatorio()"]');
+            btnVoltar.style.display = 'none';
+
+            const opt = {
+                margin: 10,
+                filename: `Relatorio_CS_${clienteNome}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(elemento).save().then(() => {
+                document.getElementById('btnBaixarPDF').style.display = 'flex';
+                btnVoltar.style.display = 'block';
+            });
+        }
     }
-
-    document.getElementById('textoPontosFortes').innerHTML = txtFortes;
-    document.getElementById('textoPontosMelhoria').innerHTML = txtMelhorias;
-
-    document.getElementById('mainApp').style.display = 'none';
-    const relatorio = document.getElementById('relatorio-print');
-    relatorio.classList.add('show-for-pdf');
-}
-
-function fecharRelatorio() {
-    // Apenas limpa a tela e garante que volta para a aba checklist limpa
-    limparFormulario(false, true);
-}
-
-function baixarPDF() {
-    const elemento = document.getElementById('relatorio-print');
-    const clienteNome = document.getElementById('relClienteNome').innerText.replace(/\s+/g, '_');
-
-    document.getElementById('btnBaixarPDF').style.display = 'none';
-    const btnVoltar = document.querySelector('button[onclick="fecharRelatorio()"]');
-    btnVoltar.style.display = 'none';
-
-    const opt = {
-        margin: 10,
-        filename: `Relatorio_CS_${clienteNome}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(elemento).save().then(() => {
-        document.getElementById('btnBaixarPDF').style.display = 'flex';
-        btnVoltar.style.display = 'block';
-    });
 }
