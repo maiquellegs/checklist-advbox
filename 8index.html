@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSI - Avaliação de Marcos de Sucesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nota0: '#ef4444',
+                        nota1: '#f97316',
+                        nota2: '#eab308',
+                        nota3: '#22c55e',
+                        nota4: '#2563eb',
+                        brand: '#001e7d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .nota-btn.selected[data-nota="0"] { background-color: #ef4444; color: white; border-color: #ef4444; }
+        .nota-btn.selected[data-nota="1"] { background-color: #f97316; color: white; border-color: #f97316; }
+        .nota-btn.selected[data-nota="2"] { background-color: #eab308; color: white; border-color: #eab308; }
+        .nota-btn.selected[data-nota="3"] { background-color: #22c55e; color: white; border-color: #22c55e; }
+        .nota-btn.selected[data-nota="4"] { background-color: #2563eb; color: white; border-color: #2563eb; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Estilos EXCLUSIVOS para gerar o PDF Edge-to-Edge */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            body { 
+                background-color: #ffffff !important; 
+                color: #334155 !important;
+                padding: 0; 
+                margin: 0; 
+            }
+            
+            .no-print { display: none !important; }
+            #main-interface { display: none !important; }
+            
+            @page { 
+                margin: 0; 
+                size: A4 portrait;
+            }
+
+            #pdf-report { 
+                display: block !important; 
+                width: 100%; 
+                background-color: #ffffff !important;
+            }
+
+            .print-table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+            .print-thead { display: table-header-group; }
+            .print-tfoot { display: table-footer-group; }
+            .print-tbody { display: table-row-group; }
+            
+            .print-content-cell { vertical-align: top; }
+
+            /* Fixar o rodapé sempre no final absoluto da página */
+            #pdf-rodape-container {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                z-index: 1000;
+            }
+
+            .print-avoid-break, li { 
+                break-inside: avoid !important; 
+                page-break-inside: avoid !important; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 pb-20">
+
+    <div id="main-interface">
+        
+        <nav class="bg-brand text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-40 no-print border-b-4 border-blue-600">
+            <div class="flex items-center gap-4 max-w-6xl mx-auto w-full">
+                <img src="Avatar Principal.png" alt="Logo" class="w-10 h-10 object-contain bg-white rounded p-1">
+                <h1 class="text-xl font-bold tracking-wide">Advbox | Avaliação de Marcos de Sucesso</h1>
+            </div>
+        </nav>
+
+        <div class="max-w-6xl mx-auto mt-6 p-4">
+            
+            <!-- CAIXA DE DADOS DO CLIENTE -->
+            <!-- CORREÇÃO AQUI: removido overflow-hidden e adicionado z-30 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200 relative z-30">
+                <!-- CORREÇÃO AQUI: adicionado rounded-l-xl na faixa azul -->
+                <div class="absolute top-0 left-0 w-2 h-full bg-blue-600 rounded-l-xl"></div>
+                
+                <div class="w-full pl-2">
+                    <div class="mb-5">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Nome do Cliente <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-nome-cliente" placeholder="Ex: TechLaw Advogados Associados" class="bg-white border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 shadow-sm transition-colors" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-gray-700 relative">
+                        <div class="flex flex-col">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">ID da Conta <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-conta-id" placeholder="Ex: 12345" class="bg-white border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-colors" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                        </div>
+                        
+                        <!-- Barra de Pesquisa de IS Customizada -->
+                        <div class="flex flex-col relative z-50">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">IS Responsável <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                                </div>
+                                <input type="text" id="input-is-responsavel" placeholder="Pesquise o IS..." class="bg-white border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 p-2.5 shadow-sm transition-colors cursor-text" autocomplete="off" required>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fa-solid fa-chevron-down text-gray-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <!-- Dropdown dinâmico gerado via JS -->
+                            <ul id="dropdown-is" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl hidden max-h-52 overflow-y-auto z-[100]"></ul>
+                        </div>
+                        
+                        <div class="flex flex-col relative z-10">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Data da Análise</label>
+                            <div class="bg-gray-50 border border-gray-200 text-gray-500 text-base rounded-lg block w-full p-2.5 shadow-sm cursor-not-allowed flex items-center">
+                                <i class="fa-regular fa-calendar mr-2"></i>
+                                <span id="display-data-analise" class="font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INDICADORES (KPIs) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 relative z-10">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <p class="text-sm text-gray-500 font-bold mb-1">Maturidade</p>
+                    <p class="text-3xl font-black text-gray-800" id="kpi-maturidade">0%</p>
+                    <span id="badge-maturidade" class="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md mt-2 inline-block self-start">Não Avaliado</span>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-100">
+                        <div class="h-1 bg-green-500 transition-all duration-500" id="barra-aderencia" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-500 font-bold mb-1">Adesão (Uso)</p>
+                    <p class="text-3xl font-black text-green-600" id="kpi-aderencia">0.0%</p>
+                    <p class="text-xs text-gray-400 mt-2 font-medium">Uso prático real</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <p class="text-sm text-gray-500 font-bold mb-1">Média Geral</p>
+                    <p class="text-3xl font-black text-gray-800" id="kpi-media">0.00</p>
+                    <p class="text-xs text-gray-400 mt-2 font-medium">Notas (0 a 4)</p>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <p class="text-sm text-gray-500 font-bold mb-1">Progresso</p>
+                    <p class="text-3xl font-black text-gray-800"><span id="kpi-avaliados">0</span><span class="text-lg text-gray-300">/17</span></p>
+                    <p class="text-xs text-gray-400 mt-2 font-medium">Marcos avaliados</p>
+                </div>
+            </div>
+
+            <!-- TÍTULO DA AVALIAÇÃO -->
+            <div class="flex justify-between items-end mb-4 border-b pb-2">
+                <h3 class="text-xl font-bold text-gray-800">Diagnóstico dos Marcos</h3>
+                <button onclick="gerarRelatorioIA()" class="text-brand hover:text-blue-800 font-bold text-sm transition flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> IA
+                </button>
+            </div>
+            
+            <!-- LISTA DE MARCOS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="lista-marcos">
+                <!-- Cards renderizados via JS -->
+            </div>
+
+            <!-- BOTÕES DE PDF -->
+            <div class="mt-10 flex justify-end gap-4 no-print border-t pt-6 border-gray-200">
+                <button onclick="gerarPDF('cliente')" class="bg-brand hover:opacity-90 text-white px-5 py-3 rounded-lg font-bold transition shadow-md flex items-center gap-2 text-base">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i> PDF (Cliente)
+                </button>
+                <button onclick="gerarPDF('is')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-bold transition shadow-md flex items-center gap-2 text-base">
+                    <i class="fa-solid fa-clipboard-list text-blue-200"></i> PDF (Interno IS)
+                </button>
+            </div>
+
+        </div>
+    </div> 
+
+
+    <!-- ========================================== -->
+    <!-- LAYOUT DO PDF (ESTRUTURA DE TABELA NATIVA PARA CABEÇALHO/RODAPÉ) -->
+    <!-- ========================================== -->
+    <div id="pdf-report" class="hidden text-slate-800 w-full relative">
+        <table class="print-table">
+            
+            <!-- CABEÇALHO REPETITIVO -->
+            <thead class="print-thead">
+                <tr>
+                    <td class="p-0 border-0">
+                        <div id="pdf-cabecalho-container" class="bg-brand text-white px-12 py-8 flex items-center justify-between" style="background-color: #001e7d !important; color: white !important;">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-white p-1.5 rounded-xl flex-shrink-0">
+                                    <img id="pdf-logo-cabecalho" src="Avatar Principal.png" alt="Logo Advbox" class="w-16 h-16 object-contain">
+                                </div>
+                                <div>
+                                    <p id="pdf-advbox-label" class="text-blue-300 font-bold tracking-widest text-xs uppercase mb-1">Advbox</p>
+                                    <h1 id="pdf-cliente-nome" class="text-3xl font-black mb-1">Nome do Cliente</h1>
+                                    <p id="pdf-subtitulo-cabecalho" class="text-blue-200 font-medium tracking-wide text-sm">Relatório de Alinhamento e Marcos de Sucesso</p>
+                                </div>
+                            </div>
+                            
+                            <div id="pdf-infos-container" class="text-right text-xs text-slate-200 space-y-1">
+                                <p id="pdf-conta-id-container" style="display: none;">ID da Conta: <strong id="pdf-conta-id" class="text-white"></strong></p>
+                                <p>IS: <strong id="pdf-is-nome" class="text-white"></strong></p>
+                                <p>Data: <strong id="pdf-data" class="text-white"></strong></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </thead>
+            
+            <!-- CONTEÚDO DINÂMICO -->
+            <tbody class="print-tbody">
+                <tr>
+                    <td class="print-content-cell p-0 border-0 align-top">
+                        <div id="pdf-dynamic-content" class="px-12 py-8 bg-white"></div>
+                    </td>
+                </tr>
+            </tbody>
+
+            <!-- ESPAÇADOR DO RODAPÉ (Tabela repetitiva que reserva espaço para o rodapé fixo não cobrir o texto) -->
+            <tfoot class="print-tfoot">
+                <tr>
+                    <td class="print-footer-spacer p-0 border-0"></td>
+                </tr>
+            </tfoot>
+            
+        </table>
+
+        <!-- RODAPÉ REPETITIVO (Movido para fora da tabela, fixado pelo CSS) -->
+        <div id="pdf-rodape-container" class="bg-brand text-white px-12 py-4 text-center flex flex-col justify-center" style="background-color: #001e7d !important; color: white !important; height: 80px;">
+            <div class="inline-block mx-auto">
+                <img id="pdf-logo-rodape" src="Logotipo CompletoPNG.png" alt="Advbox" class="h-8 mx-auto object-contain">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Relatório IA -->
+    <div id="modalIA" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="bg-brand p-5 text-white sticky top-0 flex justify-between items-start rounded-t-xl">
+                <div>
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-robot mr-2 text-blue-300"></i>Insights de IA</h2>
+                </div>
+                <button onclick="fecharModalIA()" class="text-white hover:text-gray-300 text-2xl">&times;</button>
+            </div>
+            <div class="p-10 text-gray-700 text-center">
+                <i class="fa-solid fa-gears text-4xl text-gray-300 mb-4 animate-spin"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Processando com Gemini...</h3>
+            </div>
+            <div class="p-4 bg-gray-50 border-t flex justify-end rounded-b-xl">
+                <button onclick="fecharModalIA()" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg font-bold transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de Preenchimento da Data
+        const dataAtual = new Date();
+        const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+        document.getElementById('display-data-analise').innerText = dataFormatada;
+
+        // ==========================================
+        // LÓGICA DO NOVO DROPDOWN / BARRA DE PESQUISA IS
+        // ==========================================
+        const isList = [
+            "Ana Carolina Lazaretti", "Camila Adamor", "Carolina Keller", "Douglas Loureiro",
+            "João Vitor Valentim", "Kaleu Paes", "Karin Tafernaberry", "Karlessa Mantovani",
+            "Larissa Guimarães", "Lorraine Mendes", "Luisa Cortes", "Maiquelle Godinho",
+            "Marcela Reis", "Nathália Machado", "Rebeca Maciel", "Taline Vieira",
+            "Tamiris Gervasoni", "Tauanne Lima"
+        ];
+
+        const inputIS = document.getElementById('input-is-responsavel');
+        const dropdownIS = document.getElementById('dropdown-is');
+
+        function renderDropdownIS(filtro = "") {
+            dropdownIS.innerHTML = '';
+            const termo = filtro.toLowerCase();
+            const filtrados = isList.filter(nome => nome.toLowerCase().includes(termo));
+
+            if (filtrados.length === 0) {
+                dropdownIS.innerHTML = '<li class="p-3 text-sm text-gray-500 text-center">Nenhum IS encontrado</li>';
+                return;
+            }
+
+            filtrados.forEach(nome => {
+                const li = document.createElement('li');
+                li.className = "p-2.5 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b border-gray-100 last:border-0 transition-colors flex items-center gap-2";
+                li.innerHTML = `<i class="fa-regular fa-user text-gray-400"></i> ${nome}`;
+                
+                // Usando mousedown para preencher o valor antes que o input perca o foco (blur)
+                li.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); 
+                    inputIS.value = nome;
+                    dropdownIS.classList.add('hidden');
+                });
+                dropdownIS.appendChild(li);
+            });
+        }
+
+        inputIS.addEventListener('focus', () => {
+            renderDropdownIS(inputIS.value);
+            dropdownIS.classList.remove('hidden');
+        });
+
+        inputIS.addEventListener('input', (e) => {
+            renderDropdownIS(e.target.value);
+            dropdownIS.classList.remove('hidden');
+        });
+
+        inputIS.addEventListener('blur', () => {
+            dropdownIS.classList.add('hidden');
+        });
+        // ==========================================
+
+        const marcosDeSucesso = [
+            { id: 1, nome: "Responsável Intimações", desc: "Definição clara do responsável pelas intimações.", mensagemMelhoria: "A gestão de intimações precisa ser centralizada. Defina uma única pessoa (Controller) responsável por receber as intimações do escritório para realizar o fluxo de tratamento. Isso evita perda de prazos e duplicação de trabalho." },
+            { id: 2, nome: "Atribuição de tarefas a partir das intimações RI-DT", desc: "Geração de tarefas vinculadas no sistema.", mensagemMelhoria: "O fluxo de tratamento de intimações está incompleto. É necessário que o responsável garanta a atribuição correta de tarefas e prazos a partir de cada intimação recebida, marcando-as como concluídas no sistema após a distribuição." },
+            { id: 3, nome: "Sistema de controle de prazos fatais padronizados", desc: "Uso rigoroso do controle de prazos fatais nas tarefas certas.", mensagemMelhoria: "O controle de prazos fatais apresenta riscos operacionais. Padronize a utilização de tarefas específicas para prazos judiciais (ex: Apelação, Recurso, Razões Finais), evitando o uso perigoso de 'recados' ou 'comentários' genéricos." },
+            { id: 4, nome: "Controlar as 4 datas base dos processos", desc: "Lançamento correto das datas principais de tramitação.", mensagemMelhoria: "A linha do tempo dos seus processos está com lacunas. Garanta o preenchimento das 4 datas base nos processos que estão em fase judicial ou de execução para garantir relatórios precisos e um acompanhamento processual confiável." },
+            { id: 5, nome: "Organização dos processos por fase/etapa adequada", desc: "Estruturação visual correta da evolução processual.", mensagemMelhoria: "A organização do acervo precisa de revisão. Certifique-se de que os processos estão tramitando nas fases e etapas corretas, evitando incongruências graves como processos com número CNJ parados em fases de negociação administrativa." },
+            { id: 6, nome: "Gestão por tarefa configurada", desc: "Lista de tarefas nas fases certas, pontuação e não genéricas.", mensagemMelhoria: "A estrutura de tarefas do escritório precisa ser otimizada. Configure suas tarefas vinculando-as às fases processuais corretas e atribua pontuações de produtividade a elas, eliminando o uso excessivo de tarefas soltas e genéricas." },
+            { id: 7, nome: "100% da equipe aprendeu a usar o sistema", desc: "Adesão e treinamento completo da equipe (usuários ativos).", mensagemMelhoria: "Identificamos baixa adesão da equipe ao sistema. É fundamental promover um alinhamento interno para garantir que todos os colaboradores acessem a plataforma frequentemente e registrem suas tarefas e conclusões no ambiente digital." },
+            { id: 8, nome: "Comunicação Multilateral pelo sistema", desc: "Comunicação centralizada na plataforma.", mensagemMelhoria: "A comunicação interna do escritório está descentralizada ou focada apenas no judicial. Direcione toda a troca de informações, andamentos recentes e delegação de demandas para dentro do sistema, engajando toda a equipe em um fluxo unificado." },
+            { id: 9, nome: "Uso correto de tarefas, não usar só recado ou andamentos", desc: "Tarefas acionáveis em vez de meras anotações.", mensagemMelhoria: "A equipe não está utilizando a gestão de tarefas em seu pleno potencial. Substitua o uso de 'andamentos manuais' ou eventos genéricos para atendimentos. Crie e utilize tarefas específicas e acionáveis para melhorar a medição de produtividade." },
+            { id: 10, nome: "Integração das intimações: Diários e Eletrônicas", desc: "Captura automática de publicações operante.", mensagemMelhoria: "A captura automática de intimações apresenta vulnerabilidades. Revise se os diários contratados cobrem todas as suas necessidades e garanta que 100% das senhas dos tribunais eletrônicos estejam configuradas e ativas no sistema." },
+            { id: 11, nome: "100% dos processos e recursos no sistema", desc: "Centralização total do acervo (Judiciais e Administrativos).", mensagemMelhoria: "O acervo do escritório não está totalmente centralizado. É uma premissa básica cadastrar a totalidade dos processos judiciais e administrativos no sistema para que as intimações recebidas possam ser vinculadas e tratadas corretamente." },
+            { id: 12, nome: "Grupos e tipos de ações definidos", desc: "Classificação eficiente para relatórios.", mensagemMelhoria: "A classificação dos seus processos precisa ser higienizada. Revise as configurações de 'Grupos de Ação', unificando nomenclaturas duplicadas (ex: separar 'Justiça do Trabalho' de 'Trabalhista' gera erros) para não inviabilizar relatórios futuros." },
+            { id: 13, nome: "Registro de honorários vinculados ao processo", desc: "Gestão de contratos e recebíveis vinculada ao processo.", mensagemMelhoria: "A gestão financeira não está refletindo a rentabilidade real do acervo. É essencial criar a cultura de vincular rigorosamente todos os lançamentos de receitas (honorários) aos seus respectivos processos dentro do sistema." },
+            { id: 14, nome: "Usar o Asaas", desc: "Emissão e controle de cobranças ativada.", mensagemMelhoria: "O escritório está perdendo boas oportunidades de automação. Recomendamos a ativação e utilização orgânica da integração com o Asaas para automatizar cobranças, emissão de boletos e reduzir a inadimplência." },
+            { id: 15, nome: "Financeiro parcial pelo sistema", desc: "Controle básico de contas a pagar e receber com cadastro adequado.", mensagemMelhoria: "O uso do módulo financeiro está incorreto ou subutilizado. Garanta o registro disciplinado de todas as receitas e despesas correntes, categorizando-as corretamente ao invés de lançar movimentações como meros 'registros internos'." },
+            { id: 16, nome: "Acompanhar a Origem dos Clientes", desc: "Registro de como o cliente chegou ao escritório.", mensagemMelhoria: "O escritório está operando sem dados estratégicos de captação. É crucial configurar as origens e tornar obrigatório o registro de 'Como o cliente nos conheceu' para medir com exatidão o retorno financeiro do marketing e de parceiros." },
+            { id: 17, nome: "Cadastro de clientes completo e atualizado", desc: "Fichas completas com todos os dados essenciais.", mensagemMelhoria: "A qualidade da sua base de contatos precisa melhorar. Estabeleça um padrão de atendimento que exija o preenchimento completo das fichas (documentos, contatos, endereços) e garanta que sempre exista um processo vinculado a cada cliente." }
+        ];
+
+        let avaliacoes = {};
+
+        function renderizarMarcos() {
+            const container = document.getElementById('lista-marcos');
+            container.innerHTML = '';
+
+            marcosDeSucesso.forEach(marco => {
+                const num = String(marco.id).padStart(2, '0');
+                const html = `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 transition flex flex-col justify-between" id="card-${marco.id}">
+                    <div class="mb-3">
+                        <h4 class="font-bold text-base text-gray-800 leading-tight"><span class="text-blue-600 mr-1">#${num}</span>${marco.nome} <span class="text-red-500">*</span></h4>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2" title="${marco.desc}">${marco.desc}</p>
+                    </div>
+                    
+                    <div class="flex gap-1.5 flex-wrap mt-auto">
+                        <button class="nota-btn flex-1 min-w-[70px] py-1.5 border border-gray-200 rounded-md font-semibold text-gray-600 text-xs hover:bg-gray-50 transition" data-nota="0" onclick="selecionarNota(this, ${marco.id})">0 - Não inic.</button>
+                        <button class="nota-btn flex-1 min-w-[70px] py-1.5 border border-gray-200 rounded-md font-semibold text-gray-600 text-xs hover:bg-gray-50 transition" data-nota="1" onclick="selecionarNota(this, ${marco.id})">1 - Inicial</button>
+                        <button class="nota-btn flex-1 min-w-[70px] py-1.5 border border-gray-200 rounded-md font-semibold text-gray-600 text-xs hover:bg-gray-50 transition" data-nota="2" onclick="selecionarNota(this, ${marco.id})">2 - Desenv.</button>
+                        <button class="nota-btn flex-1 min-w-[70px] py-1.5 border border-gray-200 rounded-md font-semibold text-gray-600 text-xs hover:bg-gray-50 transition" data-nota="3" onclick="selecionarNota(this, ${marco.id})">3 - Consol.</button>
+                        <button class="nota-btn flex-1 min-w-[70px] py-1.5 border border-gray-200 rounded-md font-semibold text-gray-600 text-xs hover:bg-gray-50 transition" data-nota="4" onclick="selecionarNota(this, ${marco.id})">4 - Excel.</button>
+                    </div>
+
+                    <p class="text-xs mt-3 font-semibold hidden text-center" id="status-${marco.id}"></p>
+                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function selecionarNota(btn, idMarco) {
+            const containerBtns = btn.parentElement;
+            const botoes = containerBtns.querySelectorAll('.nota-btn');
+            botoes.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            const nota = parseInt(btn.getAttribute('data-nota'));
+            avaliacoes[idMarco] = nota;
+
+            const statusText = document.getElementById(`status-${idMarco}`);
+            statusText.classList.remove('hidden');
+            
+            const mensagens = {
+                0: '<span class="text-red-600 bg-red-50 px-2 py-1 rounded-md w-full block"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Crítico</span>',
+                1: '<span class="text-orange-600 bg-orange-50 px-2 py-1 rounded-md w-full block"><i class="fa-solid fa-circle-exclamation mr-1"></i>Atenção</span>',
+                2: '<span class="text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md w-full block"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>Em desenvolvimento</span>',
+                3: '<span class="text-green-600 bg-green-50 px-2 py-1 rounded-md w-full block"><i class="fa-solid fa-check mr-1"></i>Consolidado</span>',
+                4: '<span class="text-blue-600 bg-blue-50 px-2 py-1 rounded-md w-full block"><i class="fa-solid fa-trophy mr-1"></i>Excelência</span>'
+            };
+            statusText.innerHTML = mensagens[nota];
+
+            calcularKPIs();
+        }
+
+        function calcularKPIs() {
+            const notasAtribuidas = Object.values(avaliacoes);
+            const qtdAvaliados = notasAtribuidas.length;
+            
+            if (qtdAvaliados === 0) return;
+
+            const soma = notasAtribuidas.reduce((a, b) => a + b, 0);
+            const media = soma / qtdAvaliados;
+            const pontuacaoMaximaAtual = qtdAvaliados * 4;
+            const aderencia = (soma / pontuacaoMaximaAtual) * 100;
+            const maturidade = (media / 4) * 100;
+
+            document.getElementById('kpi-avaliados').innerText = qtdAvaliados;
+            document.getElementById('kpi-media').innerText = media.toFixed(2);
+            document.getElementById('kpi-aderencia').innerText = aderencia.toFixed(1) + '%';
+            document.getElementById('kpi-maturidade').innerText = Math.round(maturidade) + '%';
+            
+            document.getElementById('barra-aderencia').style.width = aderencia + '%';
+
+            const barraAdesao = document.getElementById('barra-aderencia');
+            const textoAdesao = document.getElementById('kpi-aderencia');
+            if (aderencia < 40) {
+                barraAdesao.className = "bg-red-500 h-1 transition-all duration-500";
+                textoAdesao.className = "text-3xl font-black text-red-600";
+            } else if (aderencia < 70) {
+                barraAdesao.className = "bg-yellow-500 h-1 transition-all duration-500";
+                textoAdesao.className = "text-3xl font-black text-yellow-600";
+            } else {
+                barraAdesao.className = "bg-green-500 h-1 transition-all duration-500";
+                textoAdesao.className = "text-3xl font-black text-green-600";
+            }
+        }
+
+        function validarFormulario() {
+            const clienteInput = document.getElementById('input-nome-cliente');
+            if (!clienteInput.value || clienteInput.value.trim() === "") {
+                alert("Obrigatório: Preencha o Nome do Cliente.");
+                clienteInput.focus();
+                return false;
+            }
+
+            const contaIdInput = document.getElementById('input-conta-id');
+            if (!contaIdInput.value || contaIdInput.value.trim() === "") {
+                alert("Obrigatório: Preencha o ID da Conta Advbox (somente números).");
+                contaIdInput.focus();
+                return false;
+            }
+
+            const isRespInput = document.getElementById('input-is-responsavel');
+            if (!isRespInput.value || isRespInput.value.trim() === "") {
+                alert("Obrigatório: Selecione ou digite o IS Responsável.");
+                isRespInput.focus();
+                return false;
+            }
+
+            const totalMarcos = marcosDeSucesso.length;
+            const marcosAvaliados = Object.keys(avaliacoes).length;
+
+            if (marcosAvaliados < totalMarcos) {
+                const faltam = totalMarcos - marcosAvaliados;
+                alert(`Atenção: A avaliação está incompleta!\n\nPor favor, preencha as notas de todos os ${totalMarcos} Marcos de Sucesso antes de gerar o documento. Ainda faltam avaliar ${faltam} marcos.`);
+                return false;
+            }
+
+            return true;
+        }
+
+        function gerarRelatorioIA() { 
+            if (!validarFormulario()) return;
+            document.getElementById('modalIA').classList.remove('hidden'); 
+        }
+
+        function fecharModalIA() { document.getElementById('modalIA').classList.add('hidden'); }
+
+        function gerarPDF(tipo) { 
+            if (!validarFormulario()) return;
+
+            const cliente = document.getElementById('input-nome-cliente').value;
+            const contaId = document.getElementById('input-conta-id').value;
+            const isResp = document.getElementById('input-is-responsavel').value;
+            const dataAnalise = document.getElementById('display-data-analise').innerText;
+            
+            document.getElementById('pdf-cliente-nome').innerText = cliente;
+            document.getElementById('pdf-is-nome').innerText = isResp;
+            
+            const pdfContaContainer = document.getElementById('pdf-conta-id-container');
+            const cabecalhoPDF = document.getElementById('pdf-cabecalho-container');
+            const conteudoPDF = document.getElementById('pdf-dynamic-content');
+            
+            const rodapePDF = document.getElementById('pdf-rodape-container');
+            const espacadorRodape = document.querySelector('.print-footer-spacer');
+            const advboxLabel = document.getElementById('pdf-advbox-label');
+
+            if (tipo === 'is') {
+                cabecalhoPDF.className = "bg-brand text-white px-8 py-3 flex items-center justify-between";
+                conteudoPDF.className = "px-8 py-4 bg-white";
+                rodapePDF.className = "bg-brand text-white px-8 py-2 text-center flex flex-col justify-center";
+                rodapePDF.style.height = "50px";
+                if(espacadorRodape) espacadorRodape.style.height = "55px";
+                
+                document.getElementById('pdf-logo-cabecalho').className = "w-10 h-10 object-contain";
+                
+                if(advboxLabel) advboxLabel.className = "text-blue-300 font-bold tracking-widest text-[9px] uppercase mb-0 block";
+                
+                document.getElementById('pdf-cliente-nome').className = "text-xl font-black mb-0";
+                document.getElementById('pdf-subtitulo-cabecalho').className = "text-blue-200 font-medium tracking-wide text-xs";
+                document.getElementById('pdf-infos-container').className = "text-right text-[10px] text-slate-200 space-y-0.5";
+                document.getElementById('pdf-logo-rodape').className = "h-5 mx-auto object-contain";
+                
+                pdfContaContainer.style.display = 'block';
+                document.getElementById('pdf-conta-id').innerText = contaId;
+            } else {
+                cabecalhoPDF.className = "bg-brand text-white px-12 py-8 flex items-center justify-between";
+                conteudoPDF.className = "px-12 py-8 bg-white";
+                rodapePDF.className = "bg-brand text-white px-12 py-6 text-center flex flex-col justify-center";
+                rodapePDF.style.height = "100px";
+                if(espacadorRodape) espacadorRodape.style.height = "105px"; 
+                
+                document.getElementById('pdf-logo-cabecalho').className = "w-16 h-16 object-contain";
+                
+                if(advboxLabel) advboxLabel.className = "text-blue-300 font-bold tracking-widest text-xs uppercase mb-1 block";
+                
+                document.getElementById('pdf-cliente-nome').className = "text-3xl font-black mb-1";
+                document.getElementById('pdf-subtitulo-cabecalho').className = "text-blue-200 font-medium tracking-wide text-sm";
+                document.getElementById('pdf-infos-container').className = "text-right text-xs text-slate-200 space-y-1";
+                document.getElementById('pdf-logo-rodape').className = "h-8 mx-auto object-contain";
+
+                pdfContaContainer.style.display = 'none';
+            }
+
+            document.getElementById('pdf-data').innerText = dataAnalise;
+
+            const dynamicContent = document.getElementById('pdf-dynamic-content');
+            dynamicContent.innerHTML = '';
+
+            const valorAdesao = document.getElementById('kpi-aderencia').innerText;
+
+            if (tipo === 'cliente') {
+                let htmlCliente = `
+                    <div class="mb-8 flex justify-between items-end print-avoid-break border-b border-gray-200 pb-4">
+                        <div class="max-w-2xl">
+                            <h2 class="text-2xl font-black text-slate-800 mb-1">Análise Estratégica</h2>
+                            <p class="text-slate-500 text-sm">Resumo da sua operação focado em maturidade e eficiência.</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-0.5">Adesão Prática</p>
+                            <p class="text-2xl font-black text-blue-600">${valorAdesao}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <div class="bg-slate-50 border-l-4 border-green-500 p-2.5 mb-3 print-avoid-break">
+                            <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-arrow-trend-up text-green-600 mr-2"></i>Processos Consolidados (Pontos Fortes)</h3>
+                        </div>
+                        <ul id="pdf-lista-fortes" class="list-none space-y-2 pl-1 text-slate-700 text-sm"></ul>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="bg-slate-50 border-l-4 border-orange-500 p-2.5 mb-3 print-avoid-break">
+                            <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-screwdriver-wrench text-orange-600 mr-2"></i>Oportunidades de Evolução</h3>
+                        </div>
+                        <ul id="pdf-lista-melhorias" class="list-none space-y-2 pl-1 text-slate-700 text-sm"></ul>
+                    </div>
+                `;
+                
+                dynamicContent.innerHTML = htmlCliente;
+
+                const listaFortes = document.getElementById('pdf-lista-fortes');
+                const listaMelhorias = document.getElementById('pdf-lista-melhorias');
+                
+                let countFortes = 0;
+                let countMelhorias = 0;
+
+                marcosDeSucesso.forEach(marco => {
+                    const nota = avaliacoes[marco.id];
+                    
+                    let textoObs = "";
+                    if (nota <= 2 && marco.mensagemMelhoria) {
+                        textoObs = `<div class="mt-1 text-xs text-slate-600 bg-orange-50 p-2 rounded-md"><i class="fa-solid fa-lightbulb text-orange-500 mr-1.5"></i><strong>Recomendação:</strong> ${marco.mensagemMelhoria}</div>`;
+                    }
+
+                    const liHTML = `
+                        <li class="border-b border-gray-100 pb-2 mb-2 print-avoid-break block">
+                            <span class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-check text-green-500 mr-2"></i>${marco.nome}</span>
+                            ${textoObs}
+                        </li>
+                    `;
+
+                    if (nota >= 3) {
+                        listaFortes.insertAdjacentHTML('beforeend', liHTML);
+                        countFortes++;
+                    } else {
+                        listaMelhorias.insertAdjacentHTML('beforeend', liHTML);
+                        countMelhorias++;
+                    }
+                });
+
+                if (countFortes === 0) listaFortes.innerHTML = '<li class="text-sm text-slate-400 italic">Nenhum processo consolidado registrado nesta avaliação.</li>';
+                if (countMelhorias === 0) listaMelhorias.innerHTML = '<li class="text-sm text-slate-400 italic">Nenhum ponto de atenção identificado.</li>';
+
+            } else if (tipo === 'is') {
+                let htmlIS = `
+                    <div class="mb-4 border-b border-gray-200 pb-2 print-avoid-break">
+                        <div class="flex justify-between items-end mb-1">
+                            <h2 class="text-lg font-black text-slate-800">Relatório Técnico - CSI</h2>
+                            <div class="text-right">
+                                <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-0.5">Adesão Prática</p>
+                                <p class="text-xl font-black text-blue-600">${valorAdesao}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                `;
+
+                marcosDeSucesso.forEach(marco => {
+                    const num = String(marco.id).padStart(2, '0');
+                    const nota = avaliacoes[marco.id];
+                    
+                    let corBadge = "bg-gray-100 text-gray-700 border-gray-200";
+                    if (nota === 0) corBadge = "bg-red-50 text-red-700 border-red-200";
+                    else if (nota === 1) corBadge = "bg-orange-50 text-orange-700 border-orange-200";
+                    else if (nota === 2) corBadge = "bg-yellow-50 text-yellow-700 border-yellow-200";
+                    else if (nota === 3) corBadge = "bg-green-50 text-green-700 border-green-200";
+                    else if (nota === 4) corBadge = "bg-blue-50 text-blue-700 border-blue-200";
+
+                    htmlIS += `
+                        <div class="border border-gray-200 p-2 rounded-md print-avoid-break flex justify-between items-center bg-gray-50/50">
+                            <h4 class="font-bold text-slate-800 text-[11px] leading-tight pr-2"><span class="text-slate-400 mr-1">#${num}</span>${marco.nome}</h4>
+                            <span class="px-2 py-1 text-[10px] font-black border rounded flex-shrink-0 ${corBadge}">NOTA: ${nota}</span>
+                        </div>
+                    `;
+                });
+
+                htmlIS += `</div>`;
+                dynamicContent.innerHTML = htmlIS;
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        window.onload = renderizarMarcos;
+    </script>
+</body>
+</html>
